@@ -19,6 +19,7 @@ frontend/build
 # misc
 .DS_Store
 *.pem
+.npmrc
 
 # debug
 npm-debug.log*
