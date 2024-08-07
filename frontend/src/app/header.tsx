@@ -44,7 +44,10 @@ export default async function Header() {
 			className="border-b border-ml-white bg-transparent"
 		>
 			<NavbarBrand>
-				<Link href="/" className={`${montserrat.className} text-2xl`}>
+				<Link
+					href="/"
+					className={`${montserrat.className} text-2xl text-ml-white`}
+				>
 					movie-list
 				</Link>
 			</NavbarBrand>
