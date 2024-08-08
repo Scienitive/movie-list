@@ -29,6 +29,8 @@ export async function getMovieData(movieIds: number[]): Promise<TAction> {
 			title: jsonData.title,
 			releaseYear: jsonData.release_date.split("-")[0],
 			posterPath: jsonData.poster_path,
+			imdbURL: `https://www.imdb.com/title/${jsonData.imdb_id}`,
+			tmdbURL: `https://www.themoviedb.org/movie/${jsonData.id}`,
 		};
 		const validated = movieInfoSchema.safeParse(trimmedData);
 		if (!validated.success) {
