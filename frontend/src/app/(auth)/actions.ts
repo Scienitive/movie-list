@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { loginSchema, signupSchema, TLogin, TSignup } from "./types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Database, Tables } from "@/database.types";
 
 export async function login(data: TLogin) {
 	const supabase = createClient();
@@ -49,4 +50,14 @@ export async function signup(data: TSignup) {
 
 	revalidatePath("/", "layout");
 	redirect("/");
+}
+
+export async function getUserId(): Promise<string | undefined> {
+	const supabase = createClient();
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	return user?.id;
 }

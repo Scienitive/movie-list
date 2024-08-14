@@ -1,22 +1,14 @@
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	Button,
-	Link,
-    Popover,
-	PopoverTrigger,
-	PopoverContent
-} from "@nextui-org/react";
-import { getMovieData } from "./actions";
-import Image from "next/image";
+import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
+import { getLikeCount, getMovieData, isUserLikedPost } from "./actions";
 import { TMovieInfo } from "./types";
-import { IMDBIcon } from "../ui/icons/imdb";
-import { TMDBIcon } from "../ui/icons/tmdb";
+import MovieCard from "./MovieCard";
+import LikeButton from "./LikeButton";
+import { getUserId } from "../(auth)/actions";
+import DeleteListButton from "./DeleteListButton";
 
 type props = {
 	postId: number;
+	authorUserId: string;
 	username: string;
 	title: string;
 	movies: number[];
@@ -24,65 +16,56 @@ type props = {
 
 export default async function ListCard({
 	postId,
+	authorUserId,
 	username,
 	title,
 	movies,
 }: props) {
-	const imageURL = "https://image.tmdb.org/t/p/w1280";
+	// WARNING async waterfall
 	const { data, error } = await getMovieData(movies);
 	if (error) {
 		console.error(error);
 		return;
 	}
 
+	const likeResult = await getLikeCount(postId);
+	if (likeResult.error) {
+		return;
+	}
+	const likeCount = likeResult.data;
+
+	const userId = await getUserId();
+	let userLike = false;
+	if (userId) {
+		userLike = await isUserLikedPost(postId);
+	}
+
 	return (
-		<Card className="flex w-2/3 flex-col bg-ml-white/10">
-			<CardHeader className="flex items-center justify-center text-ml-red">
-				{title}
+		<Card className="flex w-3/5 flex-col border-1 bg-ml-white/10">
+			<CardHeader className="flex items-center justify-between px-8 text-ml-white">
+				<h1 className="text-wrap text-2xl">{title}</h1>
+				<p className="text-xl text-ml-red">{`@${username}`}</p>
 			</CardHeader>
-			<CardBody className="flex flex-wrap flex-row justify-center gap-8 max-h-64 hover:max-h-[1000px] transition-all">
+			<CardBody className="flex flex-row flex-wrap justify-center gap-8 border-y-1 bg-ml-white/10 px-8">
 				{data.map((json: TMovieInfo, index: number) => (
-					// WARNING key could be a problem here
-					<Popover key={index} placement="top" offset={-20}>
-						<PopoverTrigger>
-					<Card as={Button} className="group/footer min-w-[120px] p-0 hover:scale-105">
-						<Image
-							className="rounded-2xl border-2 border-ml-white"
-							src={`${imageURL}${json.posterPath}`}
-							width={120}
-							height={120}
-							alt={`${json.title} (${json.releaseYear})`}
-						></Image>
-						<CardFooter className="absolute -bottom-2 left-0 w-full opacity-0 group-hover/footer:opacity-100 group-hover/footer:-translate-y-2 transition duration-300">
-							<div className="flex w-full justify-around">
-								<Button
-									href={json.imdbURL}
-									as={Link}
-									isIconOnly
-									aria-label="IMDB"
-									className="h-8 w-8 min-w-8 rounded-3xl border-1 border-ml-white"
-								>
-									<IMDBIcon width={100} height={100} />
-								</Button>
-								<Button
-									href={json.tmdbURL}
-									as={Link}
-									isIconOnly
-									aria-label="TMDB"
-									className="h-8 w-8 min-w-8 rounded-3xl border-1 border-ml-white bg-[#0d253f]"
-								>
-									<TMDBIcon width={100} height={100} />
-								</Button>
-							</div>
-						</CardFooter>
-					</Card>
-					</PopoverTrigger>
-						<PopoverContent><p>{`${json.title} (${json.releaseYear})`}</p></PopoverContent>
-					</Popover>
+					<MovieCard key={index} json={json} />
 				))}
 			</CardBody>
-			<CardFooter className="flex justify-between">
-				<p className="text-ml-red">{`from ${username}`}</p>
+			<CardFooter className="flex flex-col px-8">
+				<div className="flex w-full justify-between">
+					{userId ? (
+						<LikeButton
+							postId={postId}
+							likeCount={likeCount}
+							didUserLike={userLike}
+						/>
+					) : (
+						<p className="text-ml-white">OR</p>
+					)}
+					{userId && userId === authorUserId && (
+						<DeleteListButton postId={postId} />
+					)}
+				</div>
 			</CardFooter>
 		</Card>
 	);
