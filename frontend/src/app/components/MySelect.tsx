@@ -26,11 +26,33 @@ export default function MySelect() {
 
 	return (
 		<Select
+			size="sm"
+			variant="bordered"
 			selectionMode="single"
 			defaultSelectedKeys={[timeValue]}
-			className="w-1/6"
 			onChange={selectionChangeHandler}
 			disallowEmptySelection={true}
+			className="w-1/3 max-w-[140px]"
+			classNames={{
+				mainWrapper: "text-ml-white border-ml-white",
+				trigger: [
+					"border-ml-white data-[focus=true]:border-ml-white data-[hover=true]:border-ml-white/50 data-[open=true]:border-ml-white/50",
+					"flex-row-reverse",
+				],
+
+				value: "text-ml-white text-right mr-1",
+				selectorIcon: "static",
+			}}
+			popoverProps={{
+				classNames: {
+					content: "bg-ml-white text-ml-black",
+				},
+			}}
+			listboxProps={{
+				itemClasses: {
+					base: "data-[selectable=true]:focus:bg-gray-300",
+				},
+			}}
 		>
 			{keyData.map((key, index) => (
 				<SelectItem key={key}>{textData[index]}</SelectItem>

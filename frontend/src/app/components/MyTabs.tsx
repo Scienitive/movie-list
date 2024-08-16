@@ -24,14 +24,24 @@ export default function MyTabs({ tabNames, queryNames, currentValue }: props) {
 
 	const selectionChangeHandler = (newValue: React.Key) => {
 		const newSearchParams = new URLSearchParams(searchParams.toString());
+		if (newValue.toString() === "new") {
+			newSearchParams.delete("time");
+		}
 		newSearchParams.set("sort", newValue.toString());
 		router.push(`${pathname}?${newSearchParams}`);
 	};
 
 	return (
 		<Tabs
-			onSelectionChange={selectionChangeHandler}
+			size="sm"
+			variant="bordered"
 			defaultSelectedKey={currentValue}
+			onSelectionChange={selectionChangeHandler}
+			classNames={{
+				tabList: "border-1 border-ml-white",
+				cursor: "bg-ml-red",
+				tabContent: "text-ml-white group-data-[selected=true]:text-ml-black",
+			}}
 		>
 			{tabNames.map((name, index) => (
 				<Tab key={queryNames[index]} title={name} />

@@ -2,6 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import ListCard from "../components/ListCard";
 import MyTabs from "@/app/components/MyTabs";
 import MySelect from "@/app/components/MySelect";
+import { Suspense } from "react";
+import { Spinner } from "@nextui-org/react";
 
 export default async function HomePage({
 	searchParams,
@@ -10,8 +12,8 @@ export default async function HomePage({
 }) {
 	const supabase = createClient();
 
-	const sortParam = searchParams?.sort || "new";
-	const timeParam = searchParams?.time || "all";
+	const sortParam: string = (searchParams?.sort as string) || "new";
+	const timeParam: string = (searchParams?.time as string) || "all";
 
 	let orderId, orderOptions;
 	if (sortParam === "top") {
@@ -61,7 +63,7 @@ export default async function HomePage({
 	}
 
 	return (
-		<main className="flex flex-col items-center gap-8">
+		<main className="mt-4 flex flex-col items-center gap-4">
 			<div className="flex w-3/5 justify-between">
 				<MyTabs
 					tabNames={["New", "Most Liked"]}
@@ -70,17 +72,34 @@ export default async function HomePage({
 				/>
 				{sortParam === "top" && <MySelect />}
 			</div>
-			{data?.map((json) => (
-				<ListCard
-					key={json.id}
-					postId={json.id}
-					authorUserId={json.user_id}
-					username={json.profiles.username}
-					title={json.title}
-					movies={json.movies}
-					likeCount={json.likes[0].count}
-				/>
-			))}
+			<Suspense
+				key={sortParam + timeParam}
+				fallback={
+					<div className="mt-28 flex flex-col justify-center">
+						<Spinner
+							size="lg"
+							classNames={{
+								circle1: "border-b-ml-red",
+								circle2: "border-b-ml-red",
+							}}
+						/>
+					</div>
+				}
+			>
+				<div className="flex w-full flex-col items-center gap-8">
+					{data?.map((json) => (
+						<ListCard
+							key={json.id}
+							postId={json.id}
+							authorUserId={json.user_id}
+							username={json.profiles.username}
+							title={json.title}
+							movies={json.movies}
+							likeCount={json.likes[0].count}
+						/>
+					))}
+				</div>
+			</Suspense>
 		</main>
 	);
 }
