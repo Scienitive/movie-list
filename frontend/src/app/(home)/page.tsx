@@ -63,7 +63,7 @@ export default async function HomePage({
 	}
 
 	return (
-		<main className="mt-4 flex flex-col items-center gap-4">
+		<main className="mt-4 flex grow flex-col items-center gap-4">
 			<div className="flex w-3/5 justify-between">
 				<MyTabs
 					tabNames={["New", "Most Liked"]}
@@ -75,7 +75,7 @@ export default async function HomePage({
 			<Suspense
 				key={sortParam + timeParam}
 				fallback={
-					<div className="mt-28 flex flex-col justify-center">
+					<div className="mb-8 flex grow flex-col justify-center">
 						<Spinner
 							size="lg"
 							classNames={{

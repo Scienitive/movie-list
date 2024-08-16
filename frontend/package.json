@@ -12,6 +12,7 @@
     "@nextui-org/react": "^2.4.6",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.45.0",
+    "await-to-js": "^3.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.19",
     "next": "14.2.5",
