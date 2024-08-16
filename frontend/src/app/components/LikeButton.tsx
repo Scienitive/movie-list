@@ -2,7 +2,7 @@
 
 import { Button } from "@nextui-org/react";
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { deleteLike, insertLike } from "./actions";
 
@@ -16,12 +16,20 @@ export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 	const [userLike, setUserLike] = useState<boolean>(didUserLike);
 	const [dynamicLikeCount, setDynamicLikeCount] = useState<number>(likeCount);
 
+	useEffect(() => {
+		setDynamicLikeCount(likeCount);
+	}, [likeCount]);
+
 	const handleClick = async () => {
 		const func = userLike ? deleteLike : insertLike;
 		await func(postId);
 		userLike
-			? setDynamicLikeCount(dynamicLikeCount - 1)
-			: setDynamicLikeCount(dynamicLikeCount + 1);
+			? setDynamicLikeCount((current) => {
+					return current - 1;
+				})
+			: setDynamicLikeCount((current) => {
+					return current + 1;
+				});
 		setUserLike(!userLike);
 	};
 

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
-import { getLikeCount, getMovieData, isUserLikedPost } from "./actions";
+import { getMovieData, isUserLikedPost } from "./actions";
 import { TMovieInfo } from "./types";
 import MovieCard from "./MovieCard";
 import LikeButton from "./LikeButton";
@@ -12,6 +12,7 @@ type props = {
 	username: string;
 	title: string;
 	movies: number[];
+	likeCount: number;
 };
 
 export default async function ListCard({
@@ -20,6 +21,7 @@ export default async function ListCard({
 	username,
 	title,
 	movies,
+	likeCount,
 }: props) {
 	// WARNING async waterfall
 	const { data, error } = await getMovieData(movies);
@@ -27,12 +29,6 @@ export default async function ListCard({
 		console.error(error);
 		return;
 	}
-
-	const likeResult = await getLikeCount(postId);
-	if (likeResult.error) {
-		return;
-	}
-	const likeCount = likeResult.data;
 
 	const userId = await getUserId();
 	let userLike = false;
