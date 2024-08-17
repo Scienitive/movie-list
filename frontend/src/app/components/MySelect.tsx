@@ -18,7 +18,6 @@ export default function MySelect() {
 		router.push(`${pathname}?${newSearchParams}`);
 	};
 
-	console.log(searchParams.get("time"));
 	let timeValue = searchParams.get("time") || "all";
 	if (!keyData.includes(timeValue)) {
 		timeValue = "all";

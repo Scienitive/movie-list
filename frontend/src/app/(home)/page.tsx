@@ -3,27 +3,34 @@ import MyTabs from "@/app/components/MyTabs";
 import MySelect from "@/app/components/MySelect";
 import { Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
+import to from "await-to-js";
+import { pb } from "@/utils/pocketbase/client";
 
 export default async function HomePage({
 	searchParams,
 }: {
 	searchParams: { [key: string]: string | string[] | undefined };
 }) {
-	return <p className="text-ml-white">SDSAD</p>
-	// const supabase = createClient();
-	//
-	// const sortParam: string = (searchParams?.sort as string) || "new";
-	// const timeParam: string = (searchParams?.time as string) || "all";
-	//
-	// let orderId, orderOptions;
+	const sortParam: string = (searchParams?.sort as string) || "new";
+	const timeParam: string = (searchParams?.time as string) || "all";
+
+	// let filter, sort;
 	// if (sortParam === "top") {
-	// 	orderId = "like_count";
-	// 	orderOptions = { ascending: false };
+	// 	sort:
 	// } else {
 	// 	orderId = "created_at";
 	// 	orderOptions = { ascending: false };
 	// }
-	//
+
+	pb.authStore.loadFromCookie("pb_auth");
+	const [error, data] = await to(
+		pb.collection("likes").getList(1, 4, {
+			expand: "user",
+		}),
+	);
+	console.log("o");
+	console.log(data);
+
 	// const query = supabase
 	// 	.from("lists")
 	// 	.select(
@@ -59,7 +66,8 @@ export default async function HomePage({
 	// if (error) {
 	// 	throw new Error("Can't connect to database right now :(");
 	// }
-	//
+
+	return <p className="text-ml-white">ASDSADASDSD</p>;
 	// return (
 	// 	<main className="mt-4 flex grow flex-col items-center gap-4">
 	// 		<div className="flex w-3/5 items-center justify-between">

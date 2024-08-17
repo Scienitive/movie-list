@@ -11,8 +11,6 @@ export function isAuthenticated(): boolean {
 	}
 
 	pb.authStore.loadFromCookie(authCookie?.value || "");
-	console.log(pb.authStore.isValid);
-	console.log(pb.authStore.model);
 	return pb.authStore.isValid;
 }
 
