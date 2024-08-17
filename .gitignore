@@ -40,3 +40,6 @@ next-env.d.ts
 # supabase
 .branches
 .temp
+
+# pocketbase
+pb_data
