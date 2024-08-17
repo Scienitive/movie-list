@@ -1,67 +1,55 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { loginSchema, signupSchema, TLogin, TSignup } from "./types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { pb, setAuthCookie } from "@/utils/pocketbase/client";
+import to from "await-to-js";
 
 export async function login(data: TLogin) {
-	const supabase = createClient();
-
 	const validatedLoginSchema = loginSchema.safeParse(data);
 	if (!validatedLoginSchema.success) {
 		console.error(validatedLoginSchema.error);
 		return { error: "Incorrect values." };
 	}
 
-	const { error } = await supabase.auth.signInWithPassword(data);
-
-	if (error) {
-		return { error: "Incorrect email address or password." };
-	}
+	const [error, authData] = await to(
+		pb
+			.collection("users")
+			.authWithPassword(
+				validatedLoginSchema.data.email,
+				validatedLoginSchema.data.password,
+			),
+	);
+	setAuthCookie(pb);
 
 	revalidatePath("/", "layout");
 	redirect("/");
 }
 
 export async function signup(data: TSignup) {
-	const supabase = createClient();
-
 	const validatedsignupSchema = signupSchema.safeParse(data);
 	if (!validatedsignupSchema.success) {
 		console.error(validatedsignupSchema.error);
 		return { error: "Incorrect values." };
 	}
 
-	const { error } = await supabase.auth.signUp({
-		email: data.email,
-		password: data.password,
-		options: {
-			data: {
-				username: data.username,
-			},
-		},
-	});
-
-	if (error) {
-		return { error: "Something went wrong." };
-	}
+	const [error, authData] = await to(
+		pb.collection("users").create({
+			username: validatedsignupSchema.data.username,
+			email: validatedsignupSchema.data.email,
+			emailVisibility: true,
+			password: validatedsignupSchema.data.password,
+			passwordConfirm: validatedsignupSchema.data.password,
+		}),
+	);
 
 	revalidatePath("/", "layout");
 	redirect("/");
 }
 
 export async function getUserID(): Promise<string> {
-	const supabase = createClient();
-
-	const {
-		data: { user },
-		error,
-	} = await supabase.auth.getUser();
-
-	if (error) {
+	if (!pb.authStore.isValid) {
 		throw new NotAuthenticatedError("User not authenticated.");
 	}
-
-	return user?.id as string;
 }

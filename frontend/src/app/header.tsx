@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { isAuthenticated } from "@/utils/pocketbase/client";
 import { montserrat } from "./ui/fonts";
 import {
 	Navbar,
@@ -10,9 +10,6 @@ import {
 import Link from "next/link";
 
 export default async function Header() {
-	const supabase = createClient();
-	const { data, error } = await supabase.auth.getUser();
-
 	const notAuthenticatedNavbarContent = (
 		<NavbarContent justify="end">
 			<NavbarItem className="">
@@ -51,11 +48,7 @@ export default async function Header() {
 					movie-list
 				</Link>
 			</NavbarBrand>
-			{error || !data?.user ? (
-				notAuthenticatedNavbarContent
-			) : (
-				<p>Authenticated</p>
-			)}
+			{isAuthenticated() ? <p>Authenticated</p> : notAuthenticatedNavbarContent}
 		</Navbar>
 		// <header
 		// 	className={`${montserrat.className} flex min-h-[70px] border-b border-ml-white bg-transparent px-4 py-4 tracking-wide text-ml-white`}
