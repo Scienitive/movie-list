@@ -56,15 +56,13 @@ export default async function HomePage({
 	}
 
 	const { data, error } = await query.range(0, 4);
-
 	if (error) {
-		console.error(error);
-		return;
+		throw new Error("Can't connect to database right now :(");
 	}
 
 	return (
 		<main className="mt-4 flex grow flex-col items-center gap-4">
-			<div className="flex w-3/5 justify-between">
+			<div className="flex w-3/5 items-center justify-between">
 				<MyTabs
 					tabNames={["New", "Most Liked"]}
 					queryNames={["new", "top"]}

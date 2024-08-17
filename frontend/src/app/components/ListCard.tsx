@@ -3,8 +3,9 @@ import { getMovieData, isUserLikedPost } from "./actions";
 import { TMovieInfo } from "./types";
 import MovieCard from "./MovieCard";
 import LikeButton from "./LikeButton";
-import { getUserId } from "../(auth)/actions";
+import { getUserID } from "../(auth)/actions";
 import DeleteListButton from "./DeleteListButton";
+import { to } from "await-to-js";
 
 type props = {
 	postId: number;
@@ -23,17 +24,34 @@ export default async function ListCard({
 	movies,
 	likeCount,
 }: props) {
-	// WARNING async waterfall
-	const { data, error } = await getMovieData(movies);
-	if (error) {
-		console.error(error);
+	const [movieDataResult, userIDResult] = await Promise.allSettled([
+		getMovieData(movies),
+		getUserID(),
+	]);
+
+	// If somehow I don't get the movie data I just don't return that movie list
+	if (movieDataResult.status === "rejected") {
+		console.error(movieDataResult.reason);
 		return;
 	}
 
-	const userId = await getUserId();
+	let userID: string | undefined = undefined;
+	if (userIDResult.status === "rejected") {
+		console.error(userIDResult.reason);
+		return;
+	} else {
+		userID = userIDResult.value;
+	}
+
 	let userLike = false;
-	if (userId) {
-		userLike = await isUserLikedPost(postId);
+	if (userID) {
+		const [error, data] = await to(isUserLikedPost(postId));
+		if (error) {
+			console.error(error);
+			return;
+		} else {
+			userLike = data;
+		}
 	}
 
 	return (
@@ -43,13 +61,13 @@ export default async function ListCard({
 				<p className="text-xl text-ml-red">{`@${username}`}</p>
 			</CardHeader>
 			<CardBody className="flex flex-row flex-wrap justify-center gap-8 border-y-1 bg-ml-white/10 px-8">
-				{data.map((json: TMovieInfo, index: number) => (
+				{movieDataResult.value.map((json: TMovieInfo, index: number) => (
 					<MovieCard key={index} json={json} />
 				))}
 			</CardBody>
 			<CardFooter className="flex flex-col px-8">
 				<div className="flex w-full justify-between">
-					{userId ? (
+					{userID ? (
 						<LikeButton
 							postId={postId}
 							likeCount={likeCount}
@@ -58,7 +76,7 @@ export default async function ListCard({
 					) : (
 						<p className="text-ml-white">OR</p>
 					)}
-					{userId && userId === authorUserId && (
+					{userID && userID === authorUserId && (
 						<DeleteListButton postId={postId} />
 					)}
 				</div>

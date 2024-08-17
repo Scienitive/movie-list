@@ -1,11 +1,11 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { movieInfoSchema, TAction, TMovieInfo } from "./types";
-import { getUserId } from "../(auth)/actions";
+import { movieInfoSchema, TMovieInfo } from "./types";
+import { getUserID } from "../(auth)/actions";
 import { revalidatePath } from "next/cache";
 
-export async function getMovieData(movieIds: number[]): Promise<TAction> {
+export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 	const apiToken = process.env.TMDB_API_TOKEN;
 	const apiURL = "https://api.themoviedb.org/3/movie";
 	const options = {
@@ -38,16 +38,16 @@ export async function getMovieData(movieIds: number[]): Promise<TAction> {
 		const validated = movieInfoSchema.safeParse(trimmedData);
 		if (!validated.success) {
 			console.error(validated.error);
-			return { error: "TMDB API error." };
+			throw new Error("Unexpected schema from TMDB API.");
 		}
 
 		movieData.push(validated.data);
 	});
 
-	return { data: movieData };
+	return movieData;
 }
 
-export async function getLikeCount(listId: number): Promise<TAction> {
+export async function getLikeCount(listId: number): Promise<number> {
 	const supabase = createClient();
 
 	const { count, error } = await supabase
@@ -57,10 +57,10 @@ export async function getLikeCount(listId: number): Promise<TAction> {
 
 	if (error) {
 		console.error(error);
-		return { error: error.message };
+		throw new DatabaseError("Error while getting like count.");
 	}
 
-	return { data: count };
+	return count as number;
 }
 
 export async function insertLike(postId: number): Promise<void> {
@@ -68,11 +68,12 @@ export async function insertLike(postId: number): Promise<void> {
 
 	const { error } = await supabase
 		.from("likes")
-		.insert([{ user_id: await getUserId(), list_id: postId }])
+		.insert([{ user_id: await getUserID(), list_id: postId }])
 		.select();
 
 	if (error) {
 		console.error(error);
+		throw new DatabaseError("Error while inserting the like.");
 	}
 }
 
@@ -82,24 +83,30 @@ export async function deleteLike(postId: number): Promise<void> {
 	const { error } = await supabase
 		.from("likes")
 		.delete()
-		.eq("user_id", await getUserId())
+		.eq("user_id", await getUserID())
 		.eq("list_id", postId);
 
 	if (error) {
 		console.error(error);
+		throw new DatabaseError("Error while deleting the like.");
 	}
 }
 
 export async function isUserLikedPost(postId: number): Promise<boolean> {
 	const supabase = createClient();
 
-	const userId = await getUserId();
+	const userId = await getUserID();
 
-	let { count } = await supabase
+	let { count, error } = await supabase
 		.from("likes")
 		.select("*", { count: "exact", head: true })
 		.eq("list_id", postId)
 		.eq("user_id", userId);
+
+	if (error) {
+		console.error(error);
+		throw new DatabaseError("Error while reaching database.");
+	}
 
 	if (count && count > 0) {
 		return true;
@@ -108,21 +115,31 @@ export async function isUserLikedPost(postId: number): Promise<boolean> {
 	}
 }
 
-export async function getUsername(): Promise<string | undefined> {
+export async function getUsername(): Promise<string> {
 	const supabase = createClient();
 
 	const {
 		data: { user },
+		error,
 	} = await supabase.auth.getUser();
+
+	if (error) {
+		console.error(error);
+		throw new DatabaseError("Error while reaching database.");
+	} else if (!user) {
+		throw new NotAuthenticatedError("User is not authenticated.");
+	}
 
 	return user?.user_metadata.username;
 }
 
-export async function deleteList(listId: number) {
+export async function deleteList(listId: number): Promise<void> {
 	const supabase = createClient();
 
 	const { error } = await supabase.from("lists").delete().eq("id", listId);
-	// TODO handle the error
+	if (error) {
+		throw new DatabaseError("Error while deleting the list.");
+	}
 
 	revalidatePath("/", "layout");
 }
