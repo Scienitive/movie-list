@@ -9,9 +9,72 @@ import { signupSchema } from "../types";
 import { useFormStatus } from "react-dom";
 
 export default function SignupPage() {
-	const [error, setError] = useState("");
+	const [alertError, setAlertError] = useState("");
+
+	const [usernameInvalid, setUsernameInvalid] = useState<boolean>(false);
+	const [emailInvalid, setEmailInvalid] = useState<boolean>(false);
+	const [passInvalid, setPassInvalid] = useState<boolean>(false);
+	const [usernameErrorMessage, setUsernameErrorMessage] = useState<string>("");
+	const [emailErrorMessage, setEmailErrorMessage] = useState<string>("");
+	const [passErrorMessage, setPassErrorMessage] = useState<string>("");
+
+	const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+		const form = e.currentTarget.form;
+		if (!form) {
+			return;
+		}
+
+		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$/i;
+		const usernameRegex = /^[a-zA-Z0-9_]+$/;
+
+		const formData = new FormData(form);
+		const data = {
+			username: formData.get("username"),
+			email: formData.get("email"),
+			password: formData.get("password"),
+		};
+
+		if (!data.email?.toString().match(emailRegex)) {
+			setEmailInvalid(true);
+			setEmailErrorMessage("Please enter a valid email.");
+		} else {
+			setEmailInvalid(false);
+		}
+
+		if (data.username?.toString() === "") {
+			setUsernameInvalid(true);
+			setUsernameErrorMessage("Please enter a username.");
+		} else if (!data.username?.toString().match(usernameRegex)) {
+			setUsernameInvalid(true);
+			setUsernameErrorMessage(
+				"Username consists characters that are not allowed.",
+			);
+		} else if (
+			(data.username?.toString().length ?? 0) < 3 ||
+			(data.username?.toString().length ?? 0) > 12
+		) {
+			setUsernameInvalid(true);
+			setUsernameErrorMessage("Username must be between 3 and 12 characters.");
+		} else {
+			setUsernameInvalid(false);
+		}
+
+		if (data.password?.toString() === "") {
+			setPassInvalid(true);
+			setPassErrorMessage("Please enter a password.");
+		} else if ((data.password?.toString().length ?? 0) < 6) {
+			setPassInvalid(true);
+			setPassErrorMessage("Password must be at least 6 characters long.");
+		} else {
+			setPassInvalid(false);
+		}
+	};
 
 	const formAction = async (formData: FormData) => {
+		if (usernameInvalid || emailInvalid || passInvalid) {
+			return;
+		}
+
 		const data = {
 			username: formData.get("username"),
 			email: formData.get("email"),
@@ -21,13 +84,14 @@ export default function SignupPage() {
 		const validatedSignupSchema = signupSchema.safeParse(data);
 		if (!validatedSignupSchema.success) {
 			console.error(validatedSignupSchema.error);
-			setError(validatedSignupSchema.error.message);
+			setAlertError(validatedSignupSchema.error.message);
 			return;
 		}
 
-		const { error } = await signup(validatedSignupSchema.data);
-		if (error ?? false) {
-			setError(error);
+		const error = await signup(validatedSignupSchema.data);
+		if (error) {
+			setAlertError(error.message);
+			return;
 		}
 	};
 
@@ -39,8 +103,9 @@ export default function SignupPage() {
 				isLoading={status.pending}
 				type="submit"
 				className="w-1/12 bg-ml-white text-black"
+				onClick={onClickHandler}
 			>
-				{!status.pending ? "Log in" : ""}
+				{!status.pending ? "Sign up" : ""}
 			</Button>
 		);
 	};
@@ -48,15 +113,21 @@ export default function SignupPage() {
 	return (
 		<form
 			action={formAction}
-			className="flex h-screen flex-col items-center justify-center gap-6"
+			className="flex flex-col items-center justify-center gap-6"
 		>
-			<Alert className={clsx({ hidden: error == "" })}>{error}</Alert>
+			<Alert className={clsx({ hidden: alertError == "" })}>{alertError}</Alert>
 			<Input
 				type="text"
 				name="username"
 				label="Username"
 				variant="bordered"
+				isInvalid={usernameInvalid}
+				errorMessage={usernameErrorMessage}
 				className="w-1/3 min-w-80 max-w-2xl"
+				classNames={{
+					inputWrapper: "group-data-[focus=true]:border-ml-white/70",
+					innerWrapper: "text-ml-white",
+				}}
 				required
 			/>
 			<Input
@@ -64,7 +135,13 @@ export default function SignupPage() {
 				name="email"
 				label="Email"
 				variant="bordered"
+				isInvalid={emailInvalid}
+				errorMessage={emailErrorMessage}
 				className="w-1/3 min-w-80 max-w-2xl"
+				classNames={{
+					inputWrapper: "group-data-[focus=true]:border-ml-white/70",
+					innerWrapper: "text-ml-white",
+				}}
 				required
 			/>
 			<Input
@@ -72,7 +149,13 @@ export default function SignupPage() {
 				name="password"
 				label="Password"
 				variant="bordered"
+				isInvalid={passInvalid}
+				errorMessage={passErrorMessage}
 				className="w-1/3 min-w-80 max-w-2xl"
+				classNames={{
+					inputWrapper: "group-data-[focus=true]:border-ml-white/70",
+					innerWrapper: "text-ml-white",
+				}}
 				required
 			/>
 			<SubmitButton />

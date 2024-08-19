@@ -73,7 +73,7 @@ export default async function HomePage({
 			<Suspense
 				key={sortParam + timeParam}
 				fallback={
-					<div className="mb-8 flex grow flex-col justify-center">
+					<div className="flex grow flex-col justify-center">
 						<Spinner
 							size="lg"
 							classNames={{

@@ -4,6 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 import { loginSchema, signupSchema, TLogin, TSignup } from "./types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+	TypeValidationError,
+	EmailAlreadyExistsError,
+	WrongLoginError,
+	NotAuthenticatedError,
+	UsernameAlreadyExistsError,
+} from "@/app/customerrors";
 
 export async function login(data: TLogin) {
 	const supabase = createClient();
@@ -11,13 +18,21 @@ export async function login(data: TLogin) {
 	const validatedLoginSchema = loginSchema.safeParse(data);
 	if (!validatedLoginSchema.success) {
 		console.error(validatedLoginSchema.error);
-		return { error: "Incorrect values." };
+		const error = new TypeValidationError("Incorrect values on login.");
+		return {
+			name: error.name,
+			message: error.message,
+		};
 	}
 
 	const { error } = await supabase.auth.signInWithPassword(data);
 
 	if (error) {
-		return { error: "Incorrect email address or password." };
+		const error = new WrongLoginError("Incorrect email address or password.");
+		return {
+			name: error.name,
+			message: error.message,
+		};
 	}
 
 	revalidatePath("/", "layout");
@@ -30,7 +45,30 @@ export async function signup(data: TSignup) {
 	const validatedsignupSchema = signupSchema.safeParse(data);
 	if (!validatedsignupSchema.success) {
 		console.error(validatedsignupSchema.error);
-		return { error: "Incorrect values." };
+		const error = new TypeValidationError("Incorrect values on signup.");
+		return {
+			name: error.name,
+			message: error.message,
+		};
+	}
+
+	const { count, error: uError } = await supabase
+		.from("profiles")
+		.select("*", { count: "exact", head: true })
+		.eq("username", validatedsignupSchema.data.username);
+	if (uError) {
+		console.error(uError);
+		return {
+			name: "Error",
+			message: "Database connection error.",
+		};
+	} else if (count != null && count > 0) {
+		console.log("ASDJIKSADJSAKDJ");
+		const error = new UsernameAlreadyExistsError();
+		return {
+			name: error.name,
+			message: error.message,
+		};
 	}
 
 	const { error } = await supabase.auth.signUp({
@@ -42,9 +80,21 @@ export async function signup(data: TSignup) {
 			},
 		},
 	});
-
 	if (error) {
-		return { error: "Something went wrong." };
+		console.error(error);
+	}
+
+	if (error?.code === "user_already_exists") {
+		const error = new EmailAlreadyExistsError();
+		return {
+			name: error.name,
+			message: error.message,
+		};
+	} else if (error) {
+		return {
+			name: "Error",
+			message: "Unknown error.",
+		};
 	}
 
 	revalidatePath("/", "layout");

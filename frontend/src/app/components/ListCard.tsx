@@ -36,10 +36,7 @@ export default async function ListCard({
 	}
 
 	let userID: string | undefined = undefined;
-	if (userIDResult.status === "rejected") {
-		console.error(userIDResult.reason);
-		return;
-	} else {
+	if (userIDResult.status !== "rejected") {
 		userID = userIDResult.value;
 	}
 
