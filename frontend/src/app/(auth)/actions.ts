@@ -63,7 +63,6 @@ export async function signup(data: TSignup) {
 			message: "Database connection error.",
 		};
 	} else if (count != null && count > 0) {
-		console.log("ASDJIKSADJSAKDJ");
 		const error = new UsernameAlreadyExistsError();
 		return {
 			name: error.name,

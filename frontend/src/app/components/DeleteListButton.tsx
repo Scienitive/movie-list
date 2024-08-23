@@ -29,9 +29,9 @@ export default function DeleteListButton({ postId }: props) {
 						setPopoverState(!popoverState);
 					}}
 					disableRipple={true}
-					className="bg-transparent text-ml-white"
+					className="bg-transparent pr-0 text-ml-white"
 				>
-					<FaTrashAlt size={120} />
+					<FaTrashAlt className="text-4xl sm:text-8xl" />
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="border-1 bg-ml-black text-ml-white">

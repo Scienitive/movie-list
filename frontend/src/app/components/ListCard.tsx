@@ -6,6 +6,7 @@ import LikeButton from "./LikeButton";
 import { getUserID } from "../(auth)/actions";
 import DeleteListButton from "./DeleteListButton";
 import { to } from "await-to-js";
+import NoAuthLikeButton from "@/app/components/NoAuthLikeButton";
 
 type props = {
 	postId: number;
@@ -52,17 +53,17 @@ export default async function ListCard({
 	}
 
 	return (
-		<Card className="flex w-3/5 flex-col border-1 bg-ml-white/10">
-			<CardHeader className="flex items-center justify-between px-8 text-ml-white">
-				<h1 className="text-wrap text-2xl">{title}</h1>
-				<p className="text-xl text-ml-red">{`@${username}`}</p>
+		<Card className="flex w-11/12 flex-col border-1 bg-ml-white/10 md:w-4/5 lg:w-3/5">
+			<CardHeader className="flex items-center justify-between px-6 py-2 text-ml-white sm:px-8 sm:py-3">
+				<h1 className="text-wrap text-lg sm:text-2xl">{title}</h1>
+				<p className="text-base text-ml-red sm:text-xl">{`@${username}`}</p>
 			</CardHeader>
-			<CardBody className="flex flex-row flex-wrap justify-center gap-8 border-y-1 bg-ml-white/10 px-8">
+			<CardBody className="flex flex-row flex-wrap justify-center gap-6 border-y-1 bg-ml-white/10 px-4 py-4 sm:gap-8 sm:px-8">
 				{movieDataResult.value.map((json: TMovieInfo, index: number) => (
 					<MovieCard key={index} json={json} />
 				))}
 			</CardBody>
-			<CardFooter className="flex flex-col px-8">
+			<CardFooter className="flex flex-col px-6 py-2 sm:px-8 sm:py-3">
 				<div className="flex w-full justify-between">
 					{userID ? (
 						<LikeButton
@@ -71,7 +72,7 @@ export default async function ListCard({
 							didUserLike={userLike}
 						/>
 					) : (
-						<p className="text-ml-white">OR</p>
+						<NoAuthLikeButton likeCount={likeCount} />
 					)}
 					{userID && userID === authorUserId && (
 						<DeleteListButton postId={postId} />

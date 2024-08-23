@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Header from "./header";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,17 @@ export default function RootLayout({
 				className={`${inter.className} flex min-h-full flex-col bg-ml-black`}
 			>
 				<Header></Header>
+				<Toaster
+					position="top-right"
+					toastOptions={{
+						className: "bg-ml-red",
+						error: {
+							style: {
+								background: "#dae1e6",
+							},
+						},
+					}}
+				/>
 				<Providers>{children}</Providers>
 			</body>
 		</html>

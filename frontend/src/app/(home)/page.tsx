@@ -62,7 +62,7 @@ export default async function HomePage({
 
 	return (
 		<main className="mt-4 flex grow flex-col items-center gap-4">
-			<div className="flex w-3/5 items-center justify-between">
+			<div className="flex w-11/12 items-center justify-between md:w-4/5 lg:w-3/5">
 				<MyTabs
 					tabNames={["New", "Most Liked"]}
 					queryNames={["new", "top"]}

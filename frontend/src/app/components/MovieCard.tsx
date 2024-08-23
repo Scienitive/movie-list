@@ -7,6 +7,8 @@ import { IMDBIcon } from "../ui/icons/imdb";
 import { TMDBIcon } from "../ui/icons/tmdb";
 import { TMovieInfo } from "./types";
 import { useState } from "react";
+import clsx from "clsx";
+import { useEffect } from "react";
 
 type props = {
 	key: number;
@@ -34,13 +36,13 @@ export default function MovieCard({ key, json }: props) {
 				onMouseLeave={() => {
 					setTooltipOpen(false);
 				}}
-				className="group/footer min-w-[112px] rounded-3xl p-0 hover:scale-105"
+				className="group/footer min-w-[92px] max-w-[92px] rounded-3xl p-0 hover:scale-105 sm:min-w-[112px] sm:max-w-[112px]"
 			>
 				<Image
 					className="rounded-3xl border-2 border-ml-white"
 					src={`${imageURL}${json.posterPath}`}
-					width={112}
-					height={112}
+					width={1280}
+					height={1920}
 					alt={`${json.title} (${json.releaseYear})`}
 				></Image>
 				<CardFooter className="absolute -bottom-2 left-0 w-full opacity-0 transition duration-300 group-hover/footer:-translate-y-2 group-hover/footer:opacity-100">
@@ -51,7 +53,10 @@ export default function MovieCard({ key, json }: props) {
 							as={Link}
 							isIconOnly
 							aria-label="IMDB"
-							className="h-8 w-8 min-w-8 rounded-3xl border-1 border-ml-white"
+							className={clsx(
+								"h-7 w-7 min-w-7 rounded-3xl border-1 border-ml-white sm:h-8 sm:w-8 sm:min-w-8",
+								{ "pointer-events-none": !tooltipOpen },
+							)}
 						>
 							<IMDBIcon width={100} height={100} />
 						</Button>
@@ -61,7 +66,10 @@ export default function MovieCard({ key, json }: props) {
 							as={Link}
 							isIconOnly
 							aria-label="TMDB"
-							className="h-8 w-8 min-w-8 rounded-3xl border-1 border-ml-white bg-[#0d253f]"
+							className={clsx(
+								"h-7 w-7 min-w-7 rounded-3xl border-1 border-ml-white bg-[#0d253f] sm:h-8 sm:w-8 sm:min-w-8",
+								{ "pointer-events-none": !tooltipOpen },
+							)}
 						>
 							<TMDBIcon width={100} height={100} />
 						</Button>
