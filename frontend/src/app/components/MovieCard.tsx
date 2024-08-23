@@ -8,7 +8,6 @@ import { TMDBIcon } from "../ui/icons/tmdb";
 import { TMovieInfo } from "./types";
 import { useState } from "react";
 import clsx from "clsx";
-import { useEffect } from "react";
 
 type props = {
 	key: number;

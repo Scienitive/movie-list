@@ -1,9 +1,12 @@
 import { createClient } from "@/utils/supabase/server";
-import ListCard from "../components/ListCard";
 import MyTabs from "@/app/components/MyTabs";
 import MySelect from "@/app/components/MySelect";
 import { Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
+import AddListWrapper from "@/app/components/AddListWrapper";
+import ListCard from "@/app/components/ListCard";
+import { getUsername } from "@/app/components/actions";
+import to from "await-to-js";
 
 export default async function HomePage({
 	searchParams,
@@ -60,6 +63,8 @@ export default async function HomePage({
 		throw new Error("Can't connect to database right now :(");
 	}
 
+	const [err, username] = await to(getUsername());
+
 	return (
 		<main className="mt-4 flex grow flex-col items-center gap-4">
 			<div className="flex w-11/12 items-center justify-between md:w-4/5 lg:w-3/5">
@@ -85,6 +90,12 @@ export default async function HomePage({
 				}
 			>
 				<div className="flex w-full flex-col items-center gap-8">
+					{username && (
+						<AddListWrapper
+							apiToken={process.env.TMDB_API_TOKEN as string}
+							username={username}
+						/>
+					)}
 					{data?.map((json) => (
 						<ListCard
 							key={json.id}

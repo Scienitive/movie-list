@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { movieInfoSchema, TMovieInfo } from "./types";
 import { getUserID } from "../(auth)/actions";
 import { revalidatePath } from "next/cache";
+import { DatabaseError, NotAuthenticatedError } from "@/app/customerrors";
 
 export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 	const apiToken = process.env.TMDB_API_TOKEN;
