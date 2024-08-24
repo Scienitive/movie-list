@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { movieInfoSchema, TMovieInfo } from "./types";
 import { getUserID } from "../(auth)/actions";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { DatabaseError, NotAuthenticatedError } from "@/app/customerrors";
 
 export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
@@ -143,4 +144,39 @@ export async function deleteList(listId: number): Promise<void> {
 	}
 
 	revalidatePath("/", "layout");
+}
+
+export async function createList(
+	title: string,
+	movieIDs: number[],
+): Promise<void> {
+	const supabase = createClient();
+
+	const { error } = await supabase
+		.from("lists")
+		.insert([{ user_id: await getUserID(), title: title, movies: movieIDs }])
+		.select();
+	if (error) {
+		throw new DatabaseError("Error while inserting to the lists.");
+	}
+
+	revalidatePath("/", "layout");
+}
+
+export async function getSearchMovieResults(value: string) {
+	const apiToken = process.env.TMDB_API_TOKEN;
+	const apiURL = "https://api.themoviedb.org/3/search/movie";
+	const options = {
+		method: "GET",
+		headers: {
+			accept: "application/json",
+			Authorization: `Bearer ${apiToken}`,
+		},
+	};
+
+	const res = await fetch(`${apiURL}?query=${value}`, options);
+	const results = (await res.json()).results.sort(
+		(a: any, b: any) => b.popularity - a.popularity,
+	);
+	return results;
 }

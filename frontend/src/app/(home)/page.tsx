@@ -90,12 +90,7 @@ export default async function HomePage({
 				}
 			>
 				<div className="flex w-full flex-col items-center gap-8">
-					{username && (
-						<AddListWrapper
-							apiToken={process.env.TMDB_API_TOKEN as string}
-							username={username}
-						/>
-					)}
+					{username && <AddListWrapper username={username} />}
 					{data?.map((json) => (
 						<ListCard
 							key={json.id}

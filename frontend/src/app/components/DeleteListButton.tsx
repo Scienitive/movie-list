@@ -9,6 +9,8 @@ import {
 import { FaTrashAlt } from "react-icons/fa";
 import { useState } from "react";
 import { deleteList } from "./actions";
+import to from "await-to-js";
+import toast from "react-hot-toast";
 
 type props = {
 	postId: number;
@@ -16,9 +18,21 @@ type props = {
 
 export default function DeleteListButton({ postId }: props) {
 	const [popoverState, setPopoverState] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(false);
 
 	const handleDelete = async () => {
-		await deleteList(postId);
+		setLoading(true);
+
+		const [error] = await to(deleteList(postId));
+		if (error) {
+			toast.error("Error while deleting the list.", { id: "DeleteListError" });
+			setLoading(false);
+			return;
+		}
+
+		toast.success("List deletion successful!", { id: "DeleteListSuccess" });
+		setLoading(false);
+		setPopoverState(false);
 	};
 
 	return (
@@ -41,7 +55,11 @@ export default function DeleteListButton({ postId }: props) {
 						<p className="text-xs font-light">This action is irreversible.</p>
 					</div>
 					<div className="mb-1 flex flex-col justify-center gap-2">
-						<Button onClick={handleDelete} className="bg-ml-red">
+						<Button
+							onClick={handleDelete}
+							isLoading={loading}
+							className="bg-ml-red"
+						>
 							Delete
 						</Button>
 						<Button

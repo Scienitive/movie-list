@@ -1,10 +1,11 @@
 "use client";
 
+import { getSearchMovieResults } from "@/app/components/actions";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { useState } from "react";
+import { useDebounce, useDebouncedCallback } from "use-debounce";
 
 type props = {
-	apiToken: string;
 	setMovies: Function;
 	modalOnClose: Function;
 };
@@ -16,30 +17,19 @@ type MovieList = {
 	posterPath: string;
 };
 
-export default function MyAutocomplete({
-	apiToken,
-	setMovies,
-	modalOnClose,
-}: props) {
+export default function MyAutocomplete({ setMovies, modalOnClose }: props) {
+	const [inputText, setInputText] = useState<string>("");
 	const [movieList, setMovieList] = useState<MovieList[]>([]);
+	const [loading, setLoading] = useState<boolean>(false);
 
-	const apiURL = "https://api.themoviedb.org/3/search/movie";
-	const options = {
-		method: "GET",
-		headers: {
-			accept: "application/json",
-			Authorization: `Bearer ${apiToken}`,
-		},
-	};
-
-	const inputChange = async (value: string) => {
+	const debounced = useDebouncedCallback(async (value) => {
 		if (!value) {
 			return;
 		}
-		const res = await fetch(`${apiURL}?query=${value}`, options);
-		const results = (await res.json()).results.sort(
-			(a: any, b: any) => b.popularity - a.popularity,
-		);
+
+		setLoading(true);
+
+		const results = await getSearchMovieResults(value);
 
 		const newMovieList: MovieList[] = [];
 		results.forEach((result: any) => {
@@ -63,14 +53,15 @@ export default function MyAutocomplete({
 		});
 
 		setMovieList(newMovieList);
-	};
+		setLoading(false);
+	}, 300);
 
 	const selectionChange = (key: React.Key | null) => {
 		if (!key) {
 			return;
 		}
 
-		setMovies((prevItems) => [
+		setMovies((prevItems: any) => [
 			...prevItems,
 			{
 				id: key.toString(),
@@ -84,16 +75,24 @@ export default function MyAutocomplete({
 	};
 
 	return (
-		<Autocomplete
-			aria-label="Movie Name"
-			onInputChange={inputChange}
-			onSelectionChange={selectionChange}
-		>
-			{movieList.map((movie) => (
-				<AutocompleteItem
-					key={movie.id}
-				>{`${movie.title} (${movie.releaseYear})`}</AutocompleteItem>
-			))}
-		</Autocomplete>
+		<div className="flex w-full flex-row justify-center bg-transparent">
+			<Autocomplete
+				aria-label="Movie Name"
+				placeholder="Search a movie"
+				size="lg"
+				isLoading={loading}
+				onInputChange={(value: string) => {
+					debounced(value);
+				}}
+				onSelectionChange={selectionChange}
+				className="w-11/12"
+			>
+				{movieList.map((movie) => (
+					<AutocompleteItem
+						key={movie.id}
+					>{`${movie.title} (${movie.releaseYear})`}</AutocompleteItem>
+				))}
+			</Autocomplete>
+		</div>
 	);
 }
