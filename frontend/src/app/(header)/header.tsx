@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { montserrat } from "./ui/fonts";
+import { montserrat } from "@/app/ui/fonts";
 import {
 	Navbar,
 	NavbarBrand,
@@ -8,10 +8,17 @@ import {
 	Button,
 } from "@nextui-org/react";
 import Link from "next/link";
+import { MdSettings } from "react-icons/md";
+import { getUsername } from "@/app/components/actions";
+import LogoutButton from "@/app/(header)/components/LogoutButton";
 
 export default async function Header() {
 	const supabase = createClient();
 	const { data, error } = await supabase.auth.getUser();
+	let username = "";
+	if (!error && data.user) {
+		username = await getUsername();
+	}
 
 	const notAuthenticatedNavbarContent = (
 		<NavbarContent justify="end">
@@ -22,18 +29,32 @@ export default async function Header() {
 					variant="bordered"
 					className="border-ml-white text-ml-white"
 				>
-					Log in
+					Log in / Sign up
 				</Button>
 			</NavbarItem>
-			<NavbarItem className="">
+		</NavbarContent>
+	);
+
+	const authenticatedNavbarContent = (
+		<NavbarContent justify="end">
+			<NavbarItem>
+				<Button variant="bordered" className="border-ml-white text-ml-white">
+					{`@${username}`}
+				</Button>
+			</NavbarItem>
+			<NavbarItem>
 				<Button
 					as={Link}
-					href="/signup"
+					href="/settings"
+					isIconOnly={true}
 					variant="bordered"
 					className="border-ml-white text-ml-white"
 				>
-					Sign Up
+					<MdSettings className="text-xl" />
 				</Button>
+			</NavbarItem>
+			<NavbarItem>
+				<LogoutButton />
 			</NavbarItem>
 		</NavbarContent>
 	);
@@ -51,11 +72,9 @@ export default async function Header() {
 					movie-list
 				</Link>
 			</NavbarBrand>
-			{error || !data?.user ? (
-				notAuthenticatedNavbarContent
-			) : (
-				<p>Authenticated</p>
-			)}
+			{error || !data?.user
+				? notAuthenticatedNavbarContent
+				: authenticatedNavbarContent}
 		</Navbar>
 		// <header
 		// 	className={`${montserrat.className} flex min-h-[70px] border-b border-ml-white bg-transparent px-4 py-4 tracking-wide text-ml-white`}

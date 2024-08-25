@@ -3,7 +3,7 @@
 import { getSearchMovieResults } from "@/app/components/actions";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { useState } from "react";
-import { useDebounce, useDebouncedCallback } from "use-debounce";
+import { useDebouncedCallback } from "use-debounce";
 
 type props = {
 	setMovies: Function;
@@ -18,7 +18,6 @@ type MovieList = {
 };
 
 export default function MyAutocomplete({ setMovies, modalOnClose }: props) {
-	const [inputText, setInputText] = useState<string>("");
 	const [movieList, setMovieList] = useState<MovieList[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 

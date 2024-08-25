@@ -4,7 +4,6 @@ import { createClient } from "@/utils/supabase/server";
 import { movieInfoSchema, TMovieInfo } from "./types";
 import { getUserID } from "../(auth)/actions";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { DatabaseError, NotAuthenticatedError } from "@/app/customerrors";
 
 export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
@@ -132,7 +131,17 @@ export async function getUsername(): Promise<string> {
 		throw new NotAuthenticatedError("User is not authenticated.");
 	}
 
-	return user?.user_metadata.username;
+	const { data, error: error2 } = await supabase
+		.from("profiles")
+		.select("username")
+		.eq("id", user?.id);
+
+	if (error2) {
+		console.error(error);
+		throw new DatabaseError("Error while reaching database.");
+	}
+
+	return data[0].username;
 }
 
 export async function deleteList(listId: number): Promise<void> {

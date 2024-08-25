@@ -1,4 +1,3 @@
-import { createClient } from "@/utils/supabase/server";
 import MyTabs from "@/app/components/MyTabs";
 import MySelect from "@/app/components/MySelect";
 import { Suspense } from "react";
@@ -7,61 +6,18 @@ import AddListWrapper from "@/app/components/AddListWrapper";
 import ListCard from "@/app/components/ListCard";
 import { getUsername } from "@/app/components/actions";
 import to from "await-to-js";
+import InfiniteScroll from "@/app/components/InfiniteScroll";
+import { getListData } from "@/app/(home)/actions";
 
 export default async function HomePage({
 	searchParams,
 }: {
 	searchParams: { [key: string]: string | string[] | undefined };
 }) {
-	const supabase = createClient();
-
 	const sortParam: string = (searchParams?.sort as string) || "new";
 	const timeParam: string = (searchParams?.time as string) || "all";
 
-	let orderId, orderOptions;
-	if (sortParam === "top") {
-		orderId = "like_count";
-		orderOptions = { ascending: false };
-	} else {
-		orderId = "created_at";
-		orderOptions = { ascending: false };
-	}
-
-	const query = supabase
-		.from("lists")
-		.select(
-			"id, user_id, title, movies, profiles!lists_user_id_fkey(username), likes(count)",
-		)
-		.order(orderId, orderOptions);
-
-	if (sortParam === "top") {
-		if (timeParam === "week") {
-			const now = new Date();
-			const oneWeekAgo = new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate() - 7,
-				now.getHours(),
-				now.getMinutes(),
-			);
-			query.gt("created_at", oneWeekAgo.toISOString());
-		} else if (timeParam == "month") {
-			const now = new Date();
-			const oneMonthAgo = new Date(
-				now.getFullYear(),
-				now.getMonth() - 1,
-				now.getDate(),
-				now.getHours(),
-				now.getMinutes(),
-			);
-			query.gt("created_at", oneMonthAgo.toISOString());
-		}
-	}
-
-	const { data, error } = await query.range(0, 4);
-	if (error) {
-		throw new Error("Can't connect to database right now :(");
-	}
+	const data = await getListData(sortParam, timeParam, 0);
 
 	const [err, username] = await to(getUsername());
 
@@ -102,6 +58,7 @@ export default async function HomePage({
 							likeCount={json.likes[0].count}
 						/>
 					))}
+					<InfiniteScroll />
 				</div>
 			</Suspense>
 		</main>
