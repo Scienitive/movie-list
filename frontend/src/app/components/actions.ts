@@ -170,7 +170,7 @@ export async function createList(
 		.insert([{ user_id: await getUserID(), title: title, movies: movieIDs }])
 		.select();
 	if (error) {
-		throw new DatabaseError("Error while inserting to the lists.");
+		throw new DatabaseError(error.message);
 	}
 
 	revalidatePath("/", "layout");

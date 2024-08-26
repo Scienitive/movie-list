@@ -3,11 +3,12 @@
 import { getSearchMovieResults } from "@/app/components/actions";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useDebouncedCallback } from "use-debounce";
 
-type props = {
-	setMovies: Function;
-	modalOnClose: Function;
+type MovieData = {
+	id: number;
+	posterPath: string;
 };
 
 type MovieList = {
@@ -17,7 +18,17 @@ type MovieList = {
 	posterPath: string;
 };
 
-export default function MyAutocomplete({ setMovies, modalOnClose }: props) {
+type props = {
+	movies: MovieData[];
+	setMovies: Function;
+	modalOnClose: Function;
+};
+
+export default function MyAutocomplete({
+	movies,
+	setMovies,
+	modalOnClose,
+}: props) {
 	const [movieList, setMovieList] = useState<MovieList[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -57,6 +68,15 @@ export default function MyAutocomplete({ setMovies, modalOnClose }: props) {
 
 	const selectionChange = (key: React.Key | null) => {
 		if (!key) {
+			return;
+		}
+
+		console.log(movies);
+		if (movies.some((movie) => movie.id.toString() === key.toString())) {
+			toast.error("That movie already exists in the list.", {
+				id: "DuplicateMovieError",
+			});
+			modalOnClose();
 			return;
 		}
 

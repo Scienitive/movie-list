@@ -87,11 +87,15 @@ export default function ListCardInteractive({
 				onOpenChange={onOpenChange}
 				hideCloseButton={true}
 				placement="auto"
-			className="bg-transparent"
+				className="bg-transparent"
 			>
 				<ModalContent>
 					{() => (
-						<MyAutocomplete setMovies={setMovies} modalOnClose={onClose} />
+						<MyAutocomplete
+							movies={movies}
+							setMovies={setMovies}
+							modalOnClose={onClose}
+						/>
 					)}
 				</ModalContent>
 			</Modal>
