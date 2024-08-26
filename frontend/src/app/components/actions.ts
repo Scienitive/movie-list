@@ -4,7 +4,11 @@ import { createClient } from "@/utils/supabase/server";
 import { movieInfoSchema, TMovieInfo } from "./types";
 import { getUserID } from "../(auth)/actions";
 import { revalidatePath } from "next/cache";
-import { DatabaseError, NotAuthenticatedError } from "@/app/customerrors";
+import {
+	DatabaseError,
+	NotAuthenticatedError,
+	TypeValidationError,
+} from "@/app/customerrors";
 
 export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 	const apiToken = process.env.TMDB_API_TOKEN;
@@ -188,4 +192,25 @@ export async function getSearchMovieResults(value: string) {
 		(a: any, b: any) => b.popularity - a.popularity,
 	);
 	return results;
+}
+
+export async function saveSettings(username: string) {
+	const usernameRegex = /^[A-Za-z0-9_]{3,12}$/;
+
+	if (!username.match(usernameRegex)) {
+		throw new TypeValidationError("This username is not valid.");
+	}
+
+	const supabase = createClient();
+
+	const { error } = await supabase
+		.from("profiles")
+		.update({ username: username })
+		.eq("id", await getUserID())
+		.select();
+	if (error) {
+		throw new DatabaseError("Error while inserting to the lists.");
+	}
+
+	revalidatePath("/settings", "layout");
 }
