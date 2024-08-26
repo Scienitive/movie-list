@@ -21,7 +21,6 @@ export async function OAuthLogin(
 		throw new DatabaseError("Error while oAuth login.");
 	}
 
-	console.log(data.url);
 	redirect(data.url);
 }
 

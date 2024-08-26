@@ -6,6 +6,7 @@ export async function getListData(
 	sortParam: string,
 	timeParam: string,
 	rangeNumber: number,
+	username: string | undefined = "",
 ) {
 	const supabase = createClient();
 
@@ -24,6 +25,10 @@ export async function getListData(
 			"id, user_id, title, movies, profiles!lists_user_id_fkey(username), likes(count)",
 		)
 		.order(orderId, orderOptions);
+
+	if (username) {
+		query.eq("profiles.username", username);
+	}
 
 	if (sortParam === "top") {
 		if (timeParam === "week") {
@@ -51,8 +56,9 @@ export async function getListData(
 
 	const { data, error } = await query.range(rangeNumber, rangeNumber + 3);
 	if (error) {
+		console.error(error);
 		throw new Error("Can't connect to database right now :(");
 	}
-
-	return data;
+	const filteredData = data.filter((item) => item.profiles !== null);
+	return filteredData;
 }

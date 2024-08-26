@@ -71,7 +71,6 @@ export default function MyAutocomplete({
 			return;
 		}
 
-		console.log(movies);
 		if (movies.some((movie) => movie.id.toString() === key.toString())) {
 			toast.error("That movie already exists in the list.", {
 				id: "DuplicateMovieError",
