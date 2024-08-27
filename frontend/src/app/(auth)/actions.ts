@@ -38,3 +38,50 @@ export async function getUserID(): Promise<string> {
 
 	return user?.id as string;
 }
+
+export async function doesUserExist(username: string): Promise<boolean> {
+	const supabase = createClient();
+
+	const { count, error } = await supabase
+		.from("profiles")
+		.select("*", { count: "exact", head: true })
+		.eq("username", username);
+	if (error) {
+		throw new DatabaseError(error.message);
+	}
+
+	return count === 0 ? false : true;
+}
+
+export async function getProfileData(username: string) {
+	const supabase = createClient();
+
+	const { data, error } = await supabase
+		.from("profiles")
+		.select("id")
+		.eq("username", username)
+		.single();
+	if (error) {
+		throw new DatabaseError(error.message);
+	}
+
+	const userID = data.id;
+
+	const { count: totalListCount, error: error2 } = await supabase
+		.from("lists")
+		.select("*", { count: "exact", head: true })
+		.eq("user_id", userID);
+	if (error2) {
+		throw new DatabaseError(error2.message);
+	}
+
+	const { count: totalLikeCount, error: error3 } = await supabase
+		.from("likes")
+		.select("lists!inner(user_id)", { count: "exact", head: true })
+		.eq("lists.user_id", userID);
+	if (error3) {
+		throw new DatabaseError(error3.message);
+	}
+
+	return { totalListCount, totalLikeCount };
+}

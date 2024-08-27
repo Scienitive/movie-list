@@ -38,7 +38,12 @@ export default async function Header() {
 	const authenticatedNavbarContent = (
 		<NavbarContent justify="end">
 			<NavbarItem>
-				<Button variant="bordered" className="border-ml-white text-ml-white">
+				<Button
+					as={Link}
+					href={`/p/${username}`}
+					variant="bordered"
+					className="border-ml-white text-ml-white"
+				>
 					{`@${username}`}
 				</Button>
 			</NavbarItem>

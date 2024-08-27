@@ -1,6 +1,8 @@
 import HomeContent from "@/app/(home)/HomeContent";
 import to from "await-to-js";
 import { getUsername } from "@/app/components/actions";
+import { doesUserExist, getProfileData } from "@/app/(auth)/actions";
+import UserDoesntExist from "@/app/p/[slug]/UserDoesntExist";
 
 export default async function ProfilePage({
 	searchParams,
@@ -18,12 +20,22 @@ export default async function ProfilePage({
 		addList = true;
 	}
 
+	const userExists = await doesUserExist(params.slug);
+	const profileData = await getProfileData(params.slug);
+
 	return (
-		<HomeContent
-			sortParam={sortParam}
-			timeParam={timeParam}
-			slug={params.slug}
-			addList={addList}
-		/>
+		<>
+			{userExists ? (
+				<HomeContent
+					sortParam={sortParam}
+					timeParam={timeParam}
+					slug={params.slug}
+					addList={addList}
+					profileData={profileData}
+				/>
+			) : (
+				<UserDoesntExist username={params.slug} />
+			)}
+		</>
 	);
 }

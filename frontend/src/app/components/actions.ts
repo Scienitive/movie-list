@@ -189,7 +189,7 @@ export async function getSearchMovieResults(value: string) {
 
 	const res = await fetch(`${apiURL}?query=${value}`, options);
 	const results = (await res.json()).results.sort(
-		(a: any, b: any) => b.popularity - a.popularity,
+		(a: any, b: any) => b.vote_count - a.vote_count,
 	);
 	return results;
 }

@@ -7,6 +7,7 @@ import { getUserID } from "../(auth)/actions";
 import DeleteListButton from "./DeleteListButton";
 import { to } from "await-to-js";
 import NoAuthLikeButton from "@/app/components/NoAuthLikeButton";
+import Link from "next/link";
 
 type props = {
 	postId: number;
@@ -56,7 +57,10 @@ export default async function ListCard({
 		<Card className="flex w-11/12 flex-col border-1 bg-ml-white/10 md:w-4/5 lg:w-3/5">
 			<CardHeader className="flex items-center justify-between px-6 py-2 text-ml-white sm:px-8 sm:py-3">
 				<h1 className="text-wrap break-words text-lg sm:text-2xl">{title}</h1>
-				<p className="text-base text-ml-red sm:text-xl">{`@${username}`}</p>
+				<Link
+					href={`/p/${username}`}
+					className="text-base text-ml-red sm:text-xl"
+				>{`@${username}`}</Link>
 			</CardHeader>
 			<CardBody className="flex flex-row flex-wrap items-center justify-center gap-4 border-y-1 bg-ml-white/10 px-4 py-4 sm:gap-8 sm:px-8">
 				{movieDataResult.value.map((json: TMovieInfo, index: number) => (
