@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { movieInfoSchema, TMovieInfo } from "./types";
+import { movieInfoSchema, TComment, TMovieInfo } from "./types";
 import { getUserID } from "../(auth)/actions";
 import { revalidatePath } from "next/cache";
 import {
@@ -9,6 +9,7 @@ import {
 	NotAuthenticatedError,
 	TypeValidationError,
 } from "@/app/customerrors";
+import to from "await-to-js";
 
 export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 	const apiToken = process.env.TMDB_API_TOKEN;
@@ -52,6 +53,123 @@ export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 	return movieData;
 }
 
+export async function getComments(
+	listId: number,
+	lastCommentID: number | null = null,
+): Promise<TComment[]> {
+	const supabase = createClient();
+
+	let userID: string | null = null;
+	const [userError, userData] = await to(getUserID());
+	if (!userError && userData) {
+		userID = userData;
+	}
+
+	let returnData: TComment[] = [];
+	const { data, error } = await supabase.rpc("get_comments", {
+		arg_list_id: listId,
+		arg_comment_id: null,
+		arg_is_reply: false,
+		arg_user_id: userID,
+		arg_last_comment_id: lastCommentID,
+	});
+	if (error) {
+		throw new DatabaseError(error.message);
+	}
+
+	data.forEach((data: any) => {
+		returnData.push({
+			id: data.id,
+			text: data.text,
+			replyCount: data.reply_count,
+			isDeleted: data.is_deleted,
+			username: data.username,
+			likeCount: data.like_count,
+			didUserLike: data.diduserlike,
+		});
+	});
+
+	return returnData;
+}
+
+export async function getCommentReplies(
+	commentID: number,
+	lastReplyID: number | null = null,
+) {
+	const supabase = createClient();
+
+	let userID: string | null = null;
+	const [userError, userData] = await to(getUserID());
+	if (!userError && userData) {
+		userID = userData;
+	}
+
+	let returnData: TComment[] = [];
+	const { data, error } = await supabase.rpc("get_comments", {
+		arg_list_id: null,
+		arg_comment_id: commentID,
+		arg_is_reply: true,
+		arg_user_id: userID,
+		arg_last_comment_id: lastReplyID,
+	});
+	if (error) {
+		throw new DatabaseError(error.message);
+	}
+
+	data.forEach((data: any) => {
+		returnData.push({
+			id: data.id,
+			text: data.text,
+			replyCount: data.reply_count,
+			isDeleted: data.is_deleted,
+			username: data.username,
+			likeCount: data.like_count,
+			didUserLike: data.diduserlike,
+		});
+	});
+
+	return returnData;
+}
+
+export async function getCommentLikeCount(commentID: number): Promise<number> {
+	const supabase = createClient();
+
+	const { count, error } = await supabase
+		.from("comment_likes")
+		.select("*", { count: "exact", head: true })
+		.eq("comment_id", commentID);
+
+	if (error) {
+		console.error(error);
+		throw new DatabaseError("Error while getting comment like count.");
+	}
+
+	return count as number;
+}
+
+export async function getCommentDoesUserLike(
+	commentID: number,
+): Promise<boolean> {
+	const supabase = createClient();
+
+	const [userIDError, userID] = await to(getUserID());
+	if (!userID) {
+		return false;
+	}
+
+	const { count, error } = await supabase
+		.from("comment_likes")
+		.select("*", { count: "exact", head: true })
+		.eq("user_id", userID)
+		.eq("comment_id", commentID);
+	if (error) {
+		console.error(error);
+		throw new DatabaseError("Error while getting comment like count.");
+	}
+
+	return count ? true : false;
+}
+
 export async function getLikeCount(listId: number): Promise<number> {
 	const supabase = createClient();
 
@@ -90,6 +208,35 @@ export async function deleteLike(postId: number): Promise<void> {
 		.delete()
 		.eq("user_id", await getUserID())
 		.eq("list_id", postId);
+
+	if (error) {
+		console.error(error);
+		throw new DatabaseError("Error while deleting the like.");
+	}
+}
+
+export async function insertCommentLike(commentID: number): Promise<void> {
+	const supabase = createClient();
+
+	const { error } = await supabase
+		.from("comment_likes")
+		.insert([{ user_id: await getUserID(), comment_id: commentID }])
+		.select();
+
+	if (error) {
+		console.error(error);
+		throw new DatabaseError("Error while inserting the like.");
+	}
+}
+
+export async function deleteCommentLike(commentID: number): Promise<void> {
+	const supabase = createClient();
+
+	const { error } = await supabase
+		.from("likes")
+		.delete()
+		.eq("user_id", await getUserID())
+		.eq("comment_id", commentID);
 
 	if (error) {
 		console.error(error);
@@ -209,7 +356,11 @@ export async function saveSettings(username: string) {
 		.eq("id", await getUserID())
 		.select();
 	if (error) {
-		throw new DatabaseError("Error while inserting to the lists.");
+		if (error.code === "23505") {
+			throw new DatabaseError("That username is taken.");
+		} else {
+			throw new DatabaseError("Error while inserting to the lists.");
+		}
 	}
 
 	revalidatePath("/settings", "layout");

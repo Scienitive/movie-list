@@ -1,13 +1,11 @@
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
-import { getMovieData, isUserLikedPost } from "./actions";
+import { getComments, getMovieData, isUserLikedPost } from "./actions";
 import { TMovieInfo } from "./types";
 import MovieCard from "./MovieCard";
-import LikeButton from "./LikeButton";
 import { getUserID } from "../(auth)/actions";
-import DeleteListButton from "./DeleteListButton";
 import { to } from "await-to-js";
-import NoAuthLikeButton from "@/app/components/NoAuthLikeButton";
 import Link from "next/link";
+import ListCardFooterContent from "@/app/components/ListCardFooterContent";
 
 type props = {
 	postId: number;
@@ -26,14 +24,19 @@ export default async function ListCard({
 	movies,
 	likeCount,
 }: props) {
-	const [movieDataResult, userIDResult] = await Promise.allSettled([
-		getMovieData(movies),
-		getUserID(),
-	]);
+	const [movieDataResult, initialCommentDataResult, userIDResult] =
+		await Promise.allSettled([
+			getMovieData(movies),
+			getComments(postId),
+			getUserID(),
+		]);
 
 	// If somehow I don't get the movie data I just don't return that movie list
 	if (movieDataResult.status === "rejected") {
 		console.error(movieDataResult.reason);
+		return;
+	} else if (initialCommentDataResult.status === "rejected") {
+		console.error(initialCommentDataResult.reason);
 		return;
 	}
 
@@ -68,21 +71,14 @@ export default async function ListCard({
 				))}
 			</CardBody>
 			<CardFooter className="flex flex-col px-6 py-2 sm:px-8 sm:py-3">
-				<div className="flex w-full justify-between">
-					{userID ? (
-						<LikeButton
-							key={postId}
-							postId={postId}
-							likeCount={likeCount}
-							didUserLike={userLike}
-						/>
-					) : (
-						<NoAuthLikeButton likeCount={likeCount} />
-					)}
-					{userID && userID === authorUserId && (
-						<DeleteListButton postId={postId} />
-					)}
-				</div>
+				<ListCardFooterContent
+					userID={userID}
+					authorUserId={authorUserId}
+					postId={postId}
+					likeCount={likeCount}
+					userLike={userLike}
+					initialCommentData={initialCommentDataResult.value}
+				/>
 			</CardFooter>
 		</Card>
 	);

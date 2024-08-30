@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
 import AddListWrapper from "@/app/components/AddListWrapper";
 import ListCard from "@/app/components/ListCard";
-import { getUsername } from "@/app/components/actions";
+import { getComments, getUsername } from "@/app/components/actions";
 import to from "await-to-js";
 import InfiniteScroll from "@/app/components/InfiniteScroll";
 import { getListData } from "@/app/(home)/actions";
@@ -27,7 +27,7 @@ export default async function HomeContent({
 	addList,
 	profileData,
 }: props) {
-	const data = await getListData(sortParam, timeParam, 0, slug);
+	const data = await getListData(sortParam, timeParam, slug, undefined);
 
 	const [err, username] = await to(getUsername());
 
@@ -83,14 +83,17 @@ export default async function HomeContent({
 						<ListCard
 							key={json.id}
 							postId={json.id}
-							authorUserId={json.user_id}
-							username={json.profiles.username}
+							authorUserId={json.author_id}
+							username={json.author_username}
 							title={json.title}
 							movies={json.movies}
-							likeCount={json.likes[0].count}
+							likeCount={json.like_count}
 						/>
 					))}
-					<InfiniteScroll />
+					<InfiniteScroll
+						username={slug}
+						lastListID={data.length > 0 ? data[data.length - 1].id : undefined}
+					/>
 				</div>
 			</Suspense>
 		</main>

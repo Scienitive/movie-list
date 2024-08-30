@@ -106,6 +106,11 @@ export default function ListCardInteractive({
 						placeholder="Enter a title"
 						className="h-auto flex-grow resize-none overflow-hidden bg-transparent text-lg text-ml-white focus:outline-none sm:text-2xl"
 						rows={1}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								e.preventDefault();
+							}
+						}}
 						onInput={(e) => {
 							const textarea = e.target as HTMLTextAreaElement;
 							textarea.style.height = "auto";

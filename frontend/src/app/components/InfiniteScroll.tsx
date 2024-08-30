@@ -14,11 +14,15 @@ type ListData = {
 	likeCount: number;
 };
 
-export default function InfiniteScroll() {
+type props = {
+	username: string | undefined;
+	lastListID: number | undefined;
+};
+
+export default function InfiniteScroll({ username, lastListID }: props) {
 	const searchParams = useSearchParams();
 	const [listData, setListData] = useState<ListData[]>([]);
 	const [isBottom, setIsBottom] = useState(false);
-	const [rangeNumber, setRangeNumber] = useState<number>(4);
 
 	const sortParam: string = (searchParams.get("sort") as string) || "new";
 	const timeParam: string = (searchParams.get("time") as string) || "all";
@@ -40,19 +44,23 @@ export default function InfiniteScroll() {
 	useEffect(() => {
 		const action = async () => {
 			const newData: ListData[] = [];
-			const data = await getListData(sortParam, timeParam, rangeNumber);
+			const data = await getListData(
+				sortParam,
+				timeParam,
+				username,
+				listData.length > 0 ? listData[listData.length - 1].postId : lastListID,
+			);
 			data.forEach((data) => {
 				newData.push({
 					postId: data.id,
-					authorUserId: data.user_id,
-					username: data.profiles.username,
+					authorUserId: data.author_id,
+					username: data.author_username,
 					title: data.title,
 					movies: data.movies,
-					likeCount: data.likes[0].count,
+					likeCount: data.like_count,
 				});
 			});
 			setListData((prev) => [...prev, ...newData]);
-			setRangeNumber((prev) => prev + newData.length);
 		};
 
 		if (isBottom) {

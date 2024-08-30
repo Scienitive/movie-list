@@ -24,6 +24,7 @@ type props = {
 	title: string;
 	movies: number[];
 	likeCount: number;
+	className?: string;
 };
 
 export default function ListCardClient({
@@ -33,6 +34,7 @@ export default function ListCardClient({
 	title,
 	movies,
 	likeCount,
+	className,
 }: props) {
 	const [data, setData] = useState<TMovieInfo[]>([]);
 	const [userID, setUserID] = useState<string | undefined>(undefined);
@@ -71,7 +73,13 @@ export default function ListCardClient({
 	}, []);
 
 	return (
-		<Card className="flex w-11/12 flex-col border-1 bg-ml-white/10 md:w-4/5 lg:w-3/5">
+		<Card
+			className={
+				"flex w-11/12 flex-col border-1 bg-ml-white/10 md:w-4/5 lg:w-3/5" +
+				" " +
+				className
+			}
+		>
 			<CardHeader className="flex items-center justify-between px-6 py-2 text-ml-white sm:px-8 sm:py-3">
 				<h1 className="text-wrap break-words text-lg sm:text-2xl">{title}</h1>
 				<Link

@@ -5,6 +5,16 @@ export type TAction = {
 	data?: any;
 };
 
+export type TComment = {
+	id: number;
+	text: string;
+	replyCount: number;
+	isDeleted: boolean;
+	username: string;
+	likeCount: number;
+	didUserLike: boolean;
+};
+
 export const movieInfoSchema = z.object({
 	title: z.string(),
 	releaseYear: z.string(),

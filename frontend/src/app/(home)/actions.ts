@@ -1,64 +1,41 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { DatabaseError } from "@/app/customerrors";
+
+type TListData = {
+	id: number;
+	author_id: string;
+	title: string;
+	movies: number[];
+	author_username: string;
+	like_count: number;
+};
 
 export async function getListData(
 	sortParam: string,
 	timeParam: string,
-	rangeNumber: number,
-	username: string | undefined = "",
-) {
+	username: string | null,
+	lastListID: number | undefined,
+): Promise<TListData[]> {
 	const supabase = createClient();
 
-	let orderId, orderOptions;
-	if (sortParam === "top") {
-		orderId = "like_count";
-		orderOptions = { ascending: false };
-	} else {
-		orderId = "created_at";
-		orderOptions = { ascending: false };
+	if (sortParam === "new") {
+		timeParam = "all";
+	}
+	if (!username) {
+		username = null;
 	}
 
-	const query = supabase
-		.from("lists")
-		.select(
-			"id, user_id, title, movies, profiles!lists_user_id_fkey(username), likes(count)",
-		)
-		.order(orderId, orderOptions);
-
-	if (username) {
-		query.eq("profiles.username", username);
-	}
-
-	if (sortParam === "top") {
-		if (timeParam === "week") {
-			const now = new Date();
-			const oneWeekAgo = new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate() - 7,
-				now.getHours(),
-				now.getMinutes(),
-			);
-			query.gt("created_at", oneWeekAgo.toISOString());
-		} else if (timeParam == "month") {
-			const now = new Date();
-			const oneMonthAgo = new Date(
-				now.getFullYear(),
-				now.getMonth() - 1,
-				now.getDate(),
-				now.getHours(),
-				now.getMinutes(),
-			);
-			query.gt("created_at", oneMonthAgo.toISOString());
-		}
-	}
-
-	const { data, error } = await query.range(rangeNumber, rangeNumber + 3);
+	const { data, error } = await supabase.rpc("get_listdata", {
+		sort_param: sortParam,
+		time_param: timeParam,
+		author: username,
+		last_list_id: lastListID,
+	});
 	if (error) {
-		console.error(error);
-		throw new Error("Can't connect to database right now :(");
+		throw new DatabaseError(error.message);
 	}
-	const filteredData = data.filter((item) => item.profiles !== null);
-	return filteredData;
+
+	return data;
 }
