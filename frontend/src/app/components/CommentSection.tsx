@@ -41,6 +41,7 @@ export default function CommentSection({
 		const { commentData: newCommentData, next } = await getComments(
 			listID,
 			commentData[commentData.length - 1].id,
+			commentData[commentData.length - 1].likeCount,
 		);
 		setCommentData((prev) => [...prev, ...newCommentData]);
 		setLoadMoreActive(next);

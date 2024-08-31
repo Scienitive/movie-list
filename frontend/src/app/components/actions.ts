@@ -56,6 +56,7 @@ export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 export async function getComments(
 	listId: number,
 	lastCommentID: number | null = null,
+	lastCommentLikeCount: number | null = null,
 ): Promise<{ commentData: TComment[]; next: boolean }> {
 	const supabase = createClient();
 
@@ -72,6 +73,7 @@ export async function getComments(
 		arg_is_reply: false,
 		arg_user_id: userID,
 		arg_last_comment_id: lastCommentID,
+		arg_last_comment_like_count: lastCommentLikeCount,
 	});
 	if (error) {
 		throw new DatabaseError(error.message);
@@ -94,14 +96,13 @@ export async function getComments(
 		return { commentData: returnData, next: false };
 	}
 
-	const { count } = await supabase
-		.from("comments")
-		.select("*", { count: "exact", head: true })
-		.eq("list_id", listId)
-		.lt("id", returnData[returnData.length - 1].id)
-		.limit(1);
+	const { data: next } = await supabase.rpc("next_comment_exists", {
+		arg_list_id: listId,
+		arg_last_comment_id: returnData[returnData.length - 1].id,
+		arg_last_comment_like_count: returnData[returnData.length - 1].likeCount,
+	});
 
-	return { commentData: returnData, next: !!count };
+	return { commentData: returnData, next: next };
 }
 
 export async function getCommentReplies(
@@ -149,7 +150,7 @@ export async function getCommentReplies(
 		.from("comments")
 		.select("*", { count: "exact", head: true })
 		.eq("parent", commentID)
-		.lt("id", returnData[returnData.length - 1].id)
+		.gt("id", returnData[returnData.length - 1].id)
 		.limit(1);
 
 	return { commentData: returnData, next: !!count };
@@ -267,7 +268,7 @@ export async function deleteCommentLike(commentID: number): Promise<void> {
 	const supabase = createClient();
 
 	const { error } = await supabase
-		.from("likes")
+		.from("comment_likes")
 		.delete()
 		.eq("user_id", await getUserID())
 		.eq("comment_id", commentID);
