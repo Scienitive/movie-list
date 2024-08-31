@@ -16,7 +16,7 @@ type props = {
 	postId: number;
 	likeCount: number;
 	userLike: boolean;
-	initialCommentData: TComment[];
+	initialCommentData: { commentData: TComment[]; next: boolean };
 };
 
 export default function ListCardFooterContent({
@@ -55,6 +55,8 @@ export default function ListCardFooterContent({
 			</div>
 			<Divider className="my-4 bg-ml-white" />
 			<CommentSection
+				userID={userID}
+				listID={postId}
 				initialCommentData={initialCommentData}
 				commentInputActive={commentInputActive}
 			/>

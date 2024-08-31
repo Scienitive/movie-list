@@ -5,14 +5,17 @@ import clsx from "clsx";
 import { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { deleteCommentLike, insertCommentLike } from "./actions";
+import toast from "react-hot-toast";
 
 type props = {
+	userID: string | undefined;
 	commentID: number;
 	likeCount: number;
 	didUserLike: boolean;
 };
 
 export default function CommentLikeButton({
+	userID,
 	commentID,
 	likeCount,
 	didUserLike,
@@ -21,6 +24,12 @@ export default function CommentLikeButton({
 	const [dynamicLikeCount, setDynamicLikeCount] = useState<number>(likeCount);
 
 	const handleClick = async () => {
+		if (!userID) {
+			toast.error("You need to login to like a comment.", {
+				id: "NoLoginCommentLikeError",
+			});
+			return;
+		}
 		const func = userLike ? deleteCommentLike : insertCommentLike;
 		await func(commentID);
 		userLike

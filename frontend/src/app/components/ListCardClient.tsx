@@ -10,12 +10,10 @@ import {
 import { getMovieData, isUserLikedPost } from "./actions";
 import { TMovieInfo } from "./types";
 import MovieCard from "./MovieCard";
-import LikeButton from "./LikeButton";
 import { getUserID } from "../(auth)/actions";
-import DeleteListButton from "./DeleteListButton";
 import { to } from "await-to-js";
-import NoAuthLikeButton from "@/app/components/NoAuthLikeButton";
 import { useEffect, useState } from "react";
+import ListCardFooterContent from "@/app/components/ListCardFooterContent";
 
 type props = {
 	postId: number;
@@ -93,21 +91,14 @@ export default function ListCardClient({
 				))}
 			</CardBody>
 			<CardFooter className="flex flex-col px-6 py-2 sm:px-8 sm:py-3">
-				<div className="flex w-full justify-between">
-					{userID ? (
-						<LikeButton
-							key={postId}
-							postId={postId}
-							likeCount={likeCount}
-							didUserLike={userLike}
-						/>
-					) : (
-						<NoAuthLikeButton likeCount={likeCount} />
-					)}
-					{userID && userID === authorUserId && (
-						<DeleteListButton postId={postId} />
-					)}
-				</div>
+				<ListCardFooterContent
+					userID={userID}
+					authorUserId={authorUserId}
+					postId={postId}
+					likeCount={likeCount}
+					userLike={userLike}
+					initialCommentData={{ commentData: [], next: false }}
+				/>
 			</CardFooter>
 		</Card>
 	);

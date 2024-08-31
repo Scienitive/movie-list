@@ -10,6 +10,7 @@ export type TComment = {
 	text: string;
 	replyCount: number;
 	isDeleted: boolean;
+	authorID: string;
 	username: string;
 	likeCount: number;
 	didUserLike: boolean;

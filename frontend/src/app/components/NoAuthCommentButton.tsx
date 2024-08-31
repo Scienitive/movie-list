@@ -6,7 +6,7 @@ import { FaRegComment } from "react-icons/fa";
 
 export default function NoAuthCommentButton() {
 	const handleClick = () => {
-		toast.error("You need to login to see or make a comment.", {
+		toast.error("You need to login to make a comment.", {
 			id: "NoAuthCommentButton",
 		});
 	};

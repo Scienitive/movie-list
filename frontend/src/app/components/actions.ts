@@ -56,7 +56,7 @@ export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 export async function getComments(
 	listId: number,
 	lastCommentID: number | null = null,
-): Promise<TComment[]> {
+): Promise<{ commentData: TComment[]; next: boolean }> {
 	const supabase = createClient();
 
 	let userID: string | null = null;
@@ -83,19 +83,31 @@ export async function getComments(
 			text: data.text,
 			replyCount: data.reply_count,
 			isDeleted: data.is_deleted,
+			authorID: data.author_id,
 			username: data.username,
 			likeCount: data.like_count,
 			didUserLike: data.diduserlike,
 		});
 	});
 
-	return returnData;
+	if (returnData.length <= 0) {
+		return { commentData: returnData, next: false };
+	}
+
+	const { count } = await supabase
+		.from("comments")
+		.select("*", { count: "exact", head: true })
+		.eq("list_id", listId)
+		.lt("id", returnData[returnData.length - 1].id)
+		.limit(1);
+
+	return { commentData: returnData, next: !!count };
 }
 
 export async function getCommentReplies(
 	commentID: number,
 	lastReplyID: number | null = null,
-) {
+): Promise<{ commentData: TComment[]; next: boolean }> {
 	const supabase = createClient();
 
 	let userID: string | null = null;
@@ -122,52 +134,74 @@ export async function getCommentReplies(
 			text: data.text,
 			replyCount: data.reply_count,
 			isDeleted: data.is_deleted,
+			authorID: data.author_id,
 			username: data.username,
 			likeCount: data.like_count,
 			didUserLike: data.diduserlike,
 		});
 	});
 
-	return returnData;
-}
-
-export async function getCommentLikeCount(commentID: number): Promise<number> {
-	const supabase = createClient();
-
-	const { count, error } = await supabase
-		.from("comment_likes")
-		.select("*", { count: "exact", head: true })
-		.eq("comment_id", commentID);
-
-	if (error) {
-		console.error(error);
-		throw new DatabaseError("Error while getting comment like count.");
+	if (returnData.length <= 0) {
+		return { commentData: returnData, next: false };
 	}
 
-	return count as number;
+	const { count } = await supabase
+		.from("comments")
+		.select("*", { count: "exact", head: true })
+		.eq("parent", commentID)
+		.lt("id", returnData[returnData.length - 1].id)
+		.limit(1);
+
+	return { commentData: returnData, next: !!count };
 }
 
-export async function getCommentDoesUserLike(
+export async function insertComment(
+	listID: number,
+	text: string,
+): Promise<number> {
+	const supabase = createClient();
+
+	const userID = await getUserID();
+
+	const { data, error } = await supabase
+		.from("comments")
+		.insert([{ user_id: userID, list_id: listID, text: text, is_reply: false }])
+		.select()
+		.single();
+	if (error) {
+		throw new DatabaseError(error.message);
+	}
+
+	return data.id;
+}
+
+export async function insertCommentReply(
+	listID: number,
 	commentID: number,
-): Promise<boolean> {
+	text: string,
+): Promise<number> {
 	const supabase = createClient();
 
-	const [userIDError, userID] = await to(getUserID());
-	if (!userID) {
-		return false;
-	}
+	const userID = await getUserID();
 
-	const { count, error } = await supabase
-		.from("comment_likes")
-		.select("*", { count: "exact", head: true })
-		.eq("user_id", userID)
-		.eq("comment_id", commentID);
+	const { data, error } = await supabase
+		.from("comments")
+		.insert([
+			{
+				user_id: userID,
+				list_id: listID,
+				text: text,
+				is_reply: true,
+				parent: commentID,
+			},
+		])
+		.select()
+		.single();
 	if (error) {
-		console.error(error);
-		throw new DatabaseError("Error while getting comment like count.");
+		throw new DatabaseError(error.message);
 	}
 
-	return count ? true : false;
+	return data.id;
 }
 
 export async function getLikeCount(listId: number): Promise<number> {
@@ -241,6 +275,38 @@ export async function deleteCommentLike(commentID: number): Promise<void> {
 	if (error) {
 		console.error(error);
 		throw new DatabaseError("Error while deleting the like.");
+	}
+}
+
+export async function deleteComment(commentID: number): Promise<void> {
+	const supabase = createClient();
+
+	const { data, error: error2 } = await supabase
+		.from("comments")
+		.select("replies")
+		.eq("id", commentID)
+		.single();
+	if (error2) {
+		throw new DatabaseError(error2.message);
+	}
+
+	if (!data.replies || data.replies.length === 0) {
+		const { error } = await supabase
+			.from("comments")
+			.delete()
+			.eq("id", commentID);
+		if (error) {
+			throw new DatabaseError(error.message);
+		}
+	} else {
+		const { error } = await supabase
+			.from("comments")
+			.update({ text: "[deleted]", is_deleted: true })
+			.eq("id", commentID)
+			.select();
+		if (error) {
+			throw new DatabaseError(error.message);
+		}
 	}
 }
 
