@@ -19,7 +19,7 @@ export default function LoginPage() {
 
 	return (
 		<div className="flex w-full justify-center">
-			<div className="flex w-[400px] flex-col justify-center gap-4">
+			<div className="flex w-7/12 flex-col justify-center gap-4 sm:w-[400px]">
 				<Button
 					startContent={<FaGoogle />}
 					size="lg"
