@@ -18,7 +18,7 @@ export default function CommentButton({ setCommentActive }: props) {
 					setCommentActive(true);
 				}}
 			>
-				<FaRegComment className="text-4xl sm:text-8xl" />
+				<FaRegComment className="text-3xl sm:text-8xl" />
 			</Button>
 		</>
 	);

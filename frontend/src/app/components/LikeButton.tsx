@@ -30,7 +30,7 @@ export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 	};
 
 	return (
-		<div className="flex gap-2">
+		<div className="flex gap-[2px] sm:gap-2">
 			<Button
 				isIconOnly
 				disableRipple={true}
@@ -41,12 +41,12 @@ export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 				onClick={handleClick}
 			>
 				{userLike ? (
-					<FaHeart className="text-4xl sm:text-8xl" />
+					<FaHeart className="text-3xl sm:text-8xl" />
 				) : (
-					<FaRegHeart className="text-4xl sm:text-8xl" />
+					<FaRegHeart className="text-3xl sm:text-8xl" />
 				)}
 			</Button>
-			<p className="mt-0.5 text-3xl text-ml-red sm:mt-0 sm:text-4xl">
+			<p className="mt-0.5 text-[26px] text-ml-red sm:mt-0 sm:text-4xl">
 				{dynamicLikeCount}
 			</p>
 		</div>

@@ -18,9 +18,9 @@ export default function LogoutButton() {
 			onClick={onLogout}
 			isIconOnly={true}
 			variant="bordered"
-			className="border-ml-white text-ml-white"
+			className="h-9 min-h-9 w-9 min-w-9 border-ml-white text-ml-white sm:h-10 sm:min-h-10 sm:w-10 sm:min-w-10"
 		>
-			<MdLogout className="text-xl" />
+			<MdLogout className="text-lg sm:text-xl" />
 		</Button>
 	);
 }

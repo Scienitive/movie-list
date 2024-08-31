@@ -32,7 +32,7 @@ export default function ListCardFooterContent({
 	return (
 		<>
 			<div className="flex w-full justify-between">
-				<div className="flex flex-row gap-8">
+				<div className="flex flex-row gap-4 sm:gap-8">
 					{userID ? (
 						<LikeButton
 							key={postId}
@@ -53,8 +53,11 @@ export default function ListCardFooterContent({
 					<DeleteListButton postId={postId} />
 				)}
 			</div>
-			<Divider className="my-4 bg-ml-white" />
+			{(initialCommentData.commentData.length > 0 || commentInputActive) && (
+				<Divider className="mb-3 mt-1 bg-ml-white sm:mb-3 sm:mt-3" />
+			)}
 			<CommentSection
+				key={postId}
 				userID={userID}
 				listID={postId}
 				initialCommentData={initialCommentData}

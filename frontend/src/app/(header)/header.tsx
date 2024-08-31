@@ -36,13 +36,13 @@ export default async function Header() {
 	);
 
 	const authenticatedNavbarContent = (
-		<NavbarContent justify="end">
+		<NavbarContent justify="end" className="gap-2 sm:gap-4">
 			<NavbarItem>
 				<Button
 					as={Link}
 					href={`/p/${username}`}
 					variant="bordered"
-					className="border-ml-white text-ml-white"
+					className="h-9 min-h-9 border-ml-white text-ml-white sm:h-10 sm:min-h-10"
 				>
 					{`@${username}`}
 				</Button>
@@ -53,9 +53,9 @@ export default async function Header() {
 					href="/settings"
 					isIconOnly={true}
 					variant="bordered"
-					className="border-ml-white text-ml-white"
+					className="h-9 min-h-9 w-9 min-w-9 border-ml-white text-ml-white sm:h-10 sm:min-h-10 sm:w-10 sm:min-w-10"
 				>
-					<MdSettings className="text-xl" />
+					<MdSettings className="text-lg sm:text-xl" />
 				</Button>
 			</NavbarItem>
 			<NavbarItem>

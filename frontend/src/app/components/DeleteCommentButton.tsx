@@ -58,7 +58,7 @@ export default function DeleteCommentButton({
 						setPopoverState(!popoverState);
 					}}
 					disableRipple={true}
-					className="h-4 bg-transparent px-0 text-ml-white sm:h-6 sm:w-6 sm:min-w-6"
+					className="h-6 min-h-6 w-6 min-w-6 bg-transparent px-0 text-ml-white"
 				>
 					<FaTrashAlt className="text-sm" />
 				</Button>

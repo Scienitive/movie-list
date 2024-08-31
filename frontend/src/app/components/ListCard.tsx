@@ -72,6 +72,7 @@ export default async function ListCard({
 			</CardBody>
 			<CardFooter className="flex flex-col px-6 py-2 sm:px-8 sm:py-3">
 				<ListCardFooterContent
+					key={postId}
 					userID={userID}
 					authorUserId={authorUserId}
 					postId={postId}

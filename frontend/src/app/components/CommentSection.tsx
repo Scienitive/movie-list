@@ -53,7 +53,7 @@ export default function CommentSection({
 			{commentInputActive && (
 				<CommentInput listID={listID} setNewComment={setNewComment} />
 			)}
-			<div className="flex w-full flex-col">
+			<div className="flex w-full flex-col gap-2">
 				{commentData.map((data) => (
 					<Comment
 						key={data.id}
@@ -67,7 +67,7 @@ export default function CommentSection({
 				<Button
 					disableRipple={true}
 					spinnerPlacement="end"
-					className="h-4 bg-transparent text-ml-white sm:h-6"
+					className="h-4 bg-transparent text-xs text-ml-white sm:text-sm"
 					onClick={loadMoreClick}
 					isLoading={loadMoreLoading}
 				>

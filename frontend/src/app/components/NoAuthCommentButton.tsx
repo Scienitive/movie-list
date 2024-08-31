@@ -18,7 +18,7 @@ export default function NoAuthCommentButton() {
 			className="bg-transparent text-ml-white"
 			onClick={handleClick}
 		>
-			<FaRegComment className="text-4xl sm:text-8xl" />
+			<FaRegComment className="text-3xl sm:text-8xl" />
 		</Button>
 	);
 }

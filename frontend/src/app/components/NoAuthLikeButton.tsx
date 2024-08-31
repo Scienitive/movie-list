@@ -16,16 +16,16 @@ export default function NoAuthLikeButton({ likeCount }: props) {
 	};
 
 	return (
-		<div className="flex gap-2">
+		<div className="flex gap-[2px] sm:gap-2">
 			<Button
 				isIconOnly
 				disableRipple={true}
 				className="bg-transparent text-ml-white"
 				onClick={handleClick}
 			>
-				<FaRegHeart className="text-4xl sm:text-8xl" />
+				<FaRegHeart className="text-3xl sm:text-8xl" />
 			</Button>
-			<p className="mt-0.5 text-3xl text-ml-red sm:mt-0 sm:text-4xl">
+			<p className="mt-0.5 text-[26px] text-ml-red sm:mt-0 sm:text-4xl">
 				{likeCount}
 			</p>
 		</div>

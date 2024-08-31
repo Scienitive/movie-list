@@ -47,7 +47,7 @@ export default function CommentLikeButton({
 			<Button
 				isIconOnly
 				disableRipple={true}
-				className={clsx("bg-transparent sm:h-6 sm:min-h-6 sm:w-6 sm:min-w-6", {
+				className={clsx("h-6 min-h-6 w-6 min-w-6 bg-transparent", {
 					"text-ml-red": userLike,
 					"text-ml-white": !userLike,
 				})}
@@ -59,7 +59,9 @@ export default function CommentLikeButton({
 					<FaRegHeart className="text-sm sm:text-base" />
 				)}
 			</Button>
-			<p className="mt-[1px] text-ml-red sm:text-base">{dynamicLikeCount}</p>
+			<p className="-ml-[2px] mt-[1px] text-sm text-ml-red sm:-ml-0 sm:mt-[2px] sm:text-base">
+				{dynamicLikeCount}
+			</p>
 		</div>
 	);
 }

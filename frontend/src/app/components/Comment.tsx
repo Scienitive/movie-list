@@ -118,20 +118,29 @@ export default function Comment({ userID, listID, commentData }: props) {
 	};
 
 	return (
-		<div className="flex flex-col items-end gap-2">
-			<div className="flex w-full flex-col rounded-lg bg-ml-white/10 px-4 py-1 text-ml-white">
+		<div className="flex flex-col items-end">
+			<div className="flex w-full flex-col rounded-lg bg-ml-white/10 px-3 py-1 text-ml-white sm:px-4">
 				<div className="flex flex-row justify-start gap-2">
-					<Link
-						href={`/p/${commentData.username}`}
-						className="text-ml-red"
-					>{`@${commentData.username}:`}</Link>
 					{!deleted ? (
-						<p>{commentData.text}</p>
+						<p className="text-sm sm:text-base">
+							<Link
+								href={`/p/${commentData.username}`}
+								className="mr-[6px] text-ml-red"
+							>{`@${commentData.username}:`}</Link>
+							{commentData.text}
+						</p>
 					) : (
-						<p className="text-ml-white/50">{"[deleted]"}</p>
+						<p className="text-sm text-ml-white/50 sm:text-base">
+							<Link
+								href={`/p/${commentData.username}`}
+								className="mr-[6px] text-ml-red"
+							>{`@${commentData.username}:`}</Link>
+
+							{"[deleted]"}
+						</p>
 					)}
 				</div>
-				<div className="flex flex-row gap-2">
+				<div className="flex flex-row gap-1 sm:-mt-[2px] sm:gap-2">
 					{(!deleted || (deleted && commentData.replyCount > 0)) && (
 						<CommentLikeButton
 							userID={userID}
@@ -142,9 +151,11 @@ export default function Comment({ userID, listID, commentData }: props) {
 					)}
 					{(!deleted || (deleted && commentData.replyCount > 0)) && (
 						<Button
-							className="bg-transparent px-0 text-ml-white sm:h-6 sm:min-h-6"
-							spinnerPlacement="end"
-							startContent={<FaRegCommentAlt className="text-sm" />}
+							className="h-6 min-h-6 min-w-[58px] gap-1 bg-transparent px-0 text-xs text-ml-white sm:min-w-20 sm:gap-2 sm:text-sm"
+							spinnerPlacement="start"
+							startContent={
+								!replyButtonLoading && <FaRegCommentAlt className="text-sm" />
+							}
 							disableRipple={true}
 							onClick={handleReplyClick}
 							isLoading={replyButtonLoading}
@@ -155,9 +166,9 @@ export default function Comment({ userID, listID, commentData }: props) {
 					{(commentData.replyCount > 0 || replies.length > 0) && (
 						<Button
 							disableRipple={true}
-							className="h-4 bg-transparent px-0 text-ml-white sm:h-6"
+							className="h-6 min-h-6 min-w-[76px] bg-transparent px-0 text-xs text-ml-white sm:min-w-20 sm:text-sm"
 							onClick={handleClick}
-							spinnerPlacement="end"
+							spinnerPlacement="start"
 							isLoading={showRepliesLoading}
 						>
 							{showReplies ? `Hide Replies` : `View Replies`}
@@ -171,75 +182,86 @@ export default function Comment({ userID, listID, commentData }: props) {
 					)}
 				</div>
 			</div>
-			<div className="flex w-11/12 flex-col items-center gap-2">
-				{showCommentInput && (
-					<CommentInput
-						listID={listID}
-						commentID={commentData.id}
-						setNewComment={setNewReply}
-					/>
-				)}
-				{showReplies && (
-					<div className="flex w-full flex-col gap-2">
-						{replies.map((reply, index) => (
-							<div
-								key={reply.id}
-								className="flex flex-col rounded-lg bg-ml-white/10 px-4 py-1 text-ml-white"
-							>
-								<div className="flex flex-row justify-start gap-2">
-									<Link
-										href={`/p/${reply.username}`}
-										className="text-ml-red"
-									>{`@${reply.username}:`}</Link>
-									{!repliesDeleted[index] ? (
-										<p>{reply.text}</p>
-									) : (
-										<p className="text-ml-white/50">{"[deleted]"}</p>
-									)}
+			{showReplies && (
+				<div className="mt-2 flex w-11/12 flex-col items-center gap-2">
+					{showCommentInput && (
+						<CommentInput
+							listID={listID}
+							commentID={commentData.id}
+							setNewComment={setNewReply}
+						/>
+					)}
+					{replies.length > 0 && (
+						<div className="flex w-full flex-col gap-2">
+							{replies.map((reply, index) => (
+								<div
+									key={reply.id}
+									className="flex flex-col rounded-lg bg-ml-white/10 px-3 py-1 text-ml-white sm:px-4"
+								>
+									<div className="flex flex-row justify-start gap-2">
+										{!repliesDeleted[index] ? (
+											<p className="text-sm sm:text-base">
+												<Link
+													href={`/p/${reply.username}`}
+													className="mr-[6px] text-ml-red"
+												>{`@${reply.username}:`}</Link>
+												{reply.text}
+											</p>
+										) : (
+											<p className="text-sm text-ml-white/50 sm:text-base">
+												<Link
+													href={`/p/${reply.username}`}
+													className="mr-[6px] text-ml-red"
+												>{`@${reply.username}:`}</Link>
+												{"[deleted]"}
+											</p>
+										)}
+									</div>
+									<div className="flex flex-row gap-2">
+										{!repliesDeleted[index] && (
+											<CommentLikeButton
+												userID={userID}
+												commentID={reply.id}
+												likeCount={reply.likeCount}
+												didUserLike={reply.didUserLike}
+											/>
+										)}
+										{!repliesDeleted[index] && (
+											<Button
+												className="h-6 min-h-6 min-w-[58px] gap-1 bg-transparent px-0 text-xs text-ml-white sm:min-w-20 sm:gap-2 sm:text-sm"
+												startContent={<FaRegCommentAlt className="text-sm" />}
+												disableRipple={true}
+												onClick={handleReplyClick}
+											>
+												Reply
+											</Button>
+										)}
+										{!repliesDeleted[index] && userID === reply.authorID && (
+											<DeleteCommentButton
+												commentID={reply.id}
+												setReplyDeleted={() => {
+													setReplyDeleted(index);
+												}}
+											/>
+										)}
+									</div>
 								</div>
-								<div className="flex flex-row gap-2">
-									{!repliesDeleted[index] && (
-										<CommentLikeButton
-											commentID={reply.id}
-											likeCount={reply.likeCount}
-											didUserLike={reply.didUserLike}
-										/>
-									)}
-									{!repliesDeleted[index] && (
-										<Button
-											className="bg-transparent text-ml-white sm:h-6 sm:min-h-6"
-											startContent={<FaRegCommentAlt className="text-sm" />}
-											disableRipple={true}
-											onClick={handleReplyClick}
-										>
-											Reply
-										</Button>
-									)}
-									{!repliesDeleted[index] && userID === reply.authorID && (
-										<DeleteCommentButton
-											commentID={reply.id}
-											setReplyDeleted={() => {
-												setReplyDeleted(index);
-											}}
-										/>
-									)}
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-				{loadMoreRepliesActive && (
-					<Button
-						disableRipple={true}
-						spinnerPlacement="end"
-						className="h-4 bg-transparent text-ml-white sm:h-6"
-						isLoading={loadMoreLoading}
-						onClick={loadMoreOnClick}
-					>
-						Load More Replies
-					</Button>
-				)}
-			</div>
+							))}
+						</div>
+					)}
+					{loadMoreRepliesActive && (
+						<Button
+							disableRipple={true}
+							spinnerPlacement="end"
+							className="h-4 bg-transparent text-xs text-ml-white sm:text-sm"
+							isLoading={loadMoreLoading}
+							onClick={loadMoreOnClick}
+						>
+							Load More Replies
+						</Button>
+					)}
+				</div>
+			)}
 		</div>
 	);
 }

@@ -62,17 +62,24 @@ export default function CommentInput({
 
 		toast.success("Comment added successfully!", { id: "CommentSuccess" });
 		textareaRef.current.value = "";
+		textareaRef.current.style.height = "auto";
+		textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
 		textareaRef.current.disabled = false;
 		setIsLoading(false);
 	};
 
 	return (
-		<div className="flex w-full flex-row items-end rounded-lg bg-ml-white/10 px-4 py-1">
+		<div className="flex w-full flex-row items-end rounded-lg bg-ml-white/10 px-3 py-1 sm:px-4">
 			<textarea
 				ref={textareaRef}
 				placeholder="Enter your comment..."
-				className="h-auto flex-grow resize-none overflow-hidden bg-transparent text-lg text-ml-white focus:outline-none sm:text-base"
+				className="h-auto flex-grow resize-none overflow-hidden bg-transparent text-sm text-ml-white focus:outline-none sm:text-base"
 				rows={1}
+				onKeyDown={(e) => {
+					if (e.key === "Enter") {
+						e.preventDefault();
+					}
+				}}
 				onInput={(e) => {
 					const textarea = e.target as HTMLTextAreaElement;
 					textarea.style.height = "auto";
@@ -82,11 +89,11 @@ export default function CommentInput({
 			/>
 			<Button
 				isIconOnly={true}
-				className="bg-transparent text-ml-white sm:h-6 sm:min-h-6 sm:w-6 sm:min-w-6"
+				className="h-5 min-h-5 w-5 min-w-5 rounded-full border-1 border-ml-white bg-transparent text-ml-white sm:h-6 sm:min-h-6 sm:w-6 sm:min-w-6"
 				isLoading={isLoading}
 				onClick={handleClick}
 			>
-				<CgMailReply className="text-sm" />
+				<CgMailReply className="text-xs sm:text-sm" />
 			</Button>
 		</div>
 	);
