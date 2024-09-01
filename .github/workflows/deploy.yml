@@ -48,6 +48,7 @@ jobs:
           script: |
             source /root/.nvm/nvm.sh
             cd /home/movie-list
-            echo | node -v
-            echo | npm -v
-            echo | which node
+            tar -xzf build.tar.gz
+            rm -f build.tar.gz
+            npm install --production
+            pm2 restart movie-list || pm2 start npm --name movie-list -- start
