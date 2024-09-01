@@ -29,18 +29,19 @@ jobs:
 
       - name: Copy files via SCP
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.ssh_private_key }} # Add your SSH private key in GitHub Secrets
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_IP: ${{ secrets.SSH_IP }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          scp -P 22 -o StrictHostKeyChecking=no build.tar.gz root@alyasar.dev:/home/movie-list
+          sshpass -p "$SSH_PASSWORD" scp -P 22 -o StrictHostKeyChecking=no build.tar.gz $SSH_USER@$SSH_IP:/home/movie-list
 
       - name: Deploy to VPS
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.ssh_private_key }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_IP: ${{ secrets.SSH_IP }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
-          ssh -p 22 -o StrictHostKeyChecking=no root@alyasar.dev << 'EOF'
+          sshpass -p "$SSH_PASSWORD" ssh -p 22 -o StrictHostKeyChecking=no $SSH_USER@$SSH_IP << 'EOF'
             cd /home/movie-list
             tar -xzf build.tar.gz
             rm -f build.tar.gz
