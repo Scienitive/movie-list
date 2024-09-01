@@ -8,9 +8,9 @@ import { FaRegCommentAlt } from "react-icons/fa";
 import { useState } from "react";
 import { getCommentReplies } from "@/app/components/actions";
 import CommentInput from "@/app/components/CommentInput";
-import { FaTrashAlt } from "react-icons/fa";
 import DeleteCommentButton from "@/app/components/DeleteCommentButton";
 import toast from "react-hot-toast";
+import to from "await-to-js";
 
 type props = {
 	userID: string | undefined;
@@ -51,12 +51,15 @@ export default function Comment({ userID, listID, commentData }: props) {
 
 		setIsReplyOpenedBefore(true);
 
-		const { commentData: newCommentData, next } = await getCommentReplies(
-			commentData.id,
-		);
-		setReplies(newCommentData);
-		setRepliesDeleted(newCommentData.map(() => false));
-		setLoadMoreRepliesActive(next);
+		const [error, data] = await to(getCommentReplies(commentData.id));
+		if (error) {
+			toast.error(error.message, { id: "GetCommentRepliesError" });
+			setShowRepliesLoading(false);
+			return;
+		}
+		setReplies(data.commentData);
+		setRepliesDeleted(data.commentData.map(() => false));
+		setLoadMoreRepliesActive(data.next);
 
 		setShowRepliesLoading(false);
 	};
@@ -73,12 +76,16 @@ export default function Comment({ userID, listID, commentData }: props) {
 		if (!isReplyOpenedBefore) {
 			setIsReplyOpenedBefore(true);
 			setShowRepliesLoading(true);
-			const { commentData: newCommentData, next } = await getCommentReplies(
-				commentData.id,
-			);
-			setReplies(newCommentData);
-			setRepliesDeleted(newCommentData.map(() => false));
-			setLoadMoreRepliesActive(next);
+			const [error, data] = await to(getCommentReplies(commentData.id));
+			if (error) {
+				toast.error(error.message, { id: "GetCommentRepliesError" });
+				setShowRepliesLoading(false);
+				setReplyButtonLoading(false);
+				return;
+			}
+			setReplies(data.commentData);
+			setRepliesDeleted(data.commentData.map(() => false));
+			setLoadMoreRepliesActive(data.next);
 			setShowRepliesLoading(false);
 		}
 
@@ -94,13 +101,23 @@ export default function Comment({ userID, listID, commentData }: props) {
 	const loadMoreOnClick = async () => {
 		setLoadMoreLoading(true);
 
-		const { commentData: newCommentData, next } = await getCommentReplies(
-			commentData.id,
-			replies.length > 0 ? replies[replies.length - 1].id : null,
+		const [error, data] = await to(
+			getCommentReplies(
+				commentData.id,
+				replies.length > 0 ? replies[replies.length - 1].id : null,
+			),
 		);
-		setReplies((prev) => [...prev, ...newCommentData]);
-		setRepliesDeleted((prev) => [...prev, ...newCommentData.map(() => false)]);
-		setLoadMoreRepliesActive(next);
+		if (error) {
+			toast.error(error.message, { id: "GetCommentRepliesError" });
+			setLoadMoreLoading(false);
+			return;
+		}
+		setReplies((prev) => [...prev, ...data.commentData]);
+		setRepliesDeleted((prev) => [
+			...prev,
+			...data.commentData.map(() => false),
+		]);
+		setLoadMoreRepliesActive(data.next);
 
 		setLoadMoreLoading(false);
 	};

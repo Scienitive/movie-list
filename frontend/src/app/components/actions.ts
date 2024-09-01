@@ -76,7 +76,7 @@ export async function getComments(
 		arg_last_comment_like_count: lastCommentLikeCount,
 	});
 	if (error) {
-		throw new DatabaseError(error.message);
+		throw new DatabaseError("Error while retrieving comments.");
 	}
 
 	data.forEach((data: any) => {
@@ -126,7 +126,7 @@ export async function getCommentReplies(
 		arg_last_comment_id: lastReplyID,
 	});
 	if (error) {
-		throw new DatabaseError(error.message);
+		throw new DatabaseError("Error while retrieving comments.");
 	}
 
 	data.forEach((data: any) => {
@@ -170,7 +170,7 @@ export async function insertComment(
 		.select()
 		.single();
 	if (error) {
-		throw new DatabaseError(error.message);
+		throw new DatabaseError("Error while inserting a comment.");
 	}
 
 	return data.id;
@@ -199,26 +199,17 @@ export async function insertCommentReply(
 		.select()
 		.single();
 	if (error) {
-		throw new DatabaseError(error.message);
+		console.log(error);
+		if (error.code === "23503") {
+			throw new DatabaseError(
+				"The comment that you're replying to doesn't exist.",
+			);
+		} else {
+			throw new DatabaseError(error.message);
+		}
 	}
 
 	return data.id;
-}
-
-export async function getLikeCount(listId: number): Promise<number> {
-	const supabase = createClient();
-
-	const { count, error } = await supabase
-		.from("likes")
-		.select("*", { count: "exact", head: true })
-		.eq("list_id", listId);
-
-	if (error) {
-		console.error(error);
-		throw new DatabaseError("Error while getting like count.");
-	}
-
-	return count as number;
 }
 
 export async function insertLike(postId: number): Promise<void> {
@@ -231,7 +222,7 @@ export async function insertLike(postId: number): Promise<void> {
 
 	if (error) {
 		console.error(error);
-		throw new DatabaseError("Error while inserting the like.");
+		throw new DatabaseError("Error while inserting a like.");
 	}
 }
 
@@ -246,7 +237,7 @@ export async function deleteLike(postId: number): Promise<void> {
 
 	if (error) {
 		console.error(error);
-		throw new DatabaseError("Error while deleting the like.");
+		throw new DatabaseError("Error while deleting a like.");
 	}
 }
 
@@ -259,8 +250,12 @@ export async function insertCommentLike(commentID: number): Promise<void> {
 		.select();
 
 	if (error) {
-		console.error(error);
-		throw new DatabaseError("Error while inserting the like.");
+		console.log(error);
+		if (error.code === "23503") {
+			throw new DatabaseError("The comment that you like doesn't exist.");
+		} else {
+			throw new DatabaseError(error.message);
+		}
 	}
 }
 
@@ -274,8 +269,12 @@ export async function deleteCommentLike(commentID: number): Promise<void> {
 		.eq("comment_id", commentID);
 
 	if (error) {
-		console.error(error);
-		throw new DatabaseError("Error while deleting the like.");
+		console.log(error);
+		if (error.code === "23503") {
+			throw new DatabaseError("Error while deleting a like.");
+		} else {
+			throw new DatabaseError(error.message);
+		}
 	}
 }
 

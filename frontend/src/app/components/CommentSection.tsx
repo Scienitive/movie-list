@@ -6,6 +6,8 @@ import { TComment } from "@/app/components/types";
 import CommentInput from "@/app/components/CommentInput";
 import { Button } from "@nextui-org/react";
 import { getComments } from "@/app/components/actions";
+import to from "await-to-js";
+import toast from "react-hot-toast";
 
 type props = {
 	userID: string | undefined;
@@ -38,13 +40,20 @@ export default function CommentSection({
 		}
 		setLoadMoreLoading(true);
 
-		const { commentData: newCommentData, next } = await getComments(
-			listID,
-			commentData[commentData.length - 1].id,
-			commentData[commentData.length - 1].likeCount,
+		const [error, data] = await to(
+			getComments(
+				listID,
+				commentData[commentData.length - 1].id,
+				commentData[commentData.length - 1].likeCount,
+			),
 		);
-		setCommentData((prev) => [...prev, ...newCommentData]);
-		setLoadMoreActive(next);
+		if (error) {
+			toast.error(error.message, { id: "GetCommentsError" });
+			setLoadMoreLoading(false);
+			return;
+		}
+		setCommentData((prev) => [...prev, ...data.commentData]);
+		setLoadMoreActive(data.next);
 
 		setLoadMoreLoading(false);
 	};

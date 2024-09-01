@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { deleteCommentLike, insertCommentLike } from "./actions";
 import toast from "react-hot-toast";
+import to from "await-to-js";
 
 type props = {
 	userID: string | undefined;
@@ -31,7 +32,11 @@ export default function CommentLikeButton({
 			return;
 		}
 		const func = userLike ? deleteCommentLike : insertCommentLike;
-		await func(commentID);
+		const [error] = await to(func(commentID));
+		if (error) {
+			toast.error(error.message, { id: "CommentLikeButtonError" });
+			return;
+		}
 		userLike
 			? setDynamicLikeCount((current) => {
 					return current - 1;

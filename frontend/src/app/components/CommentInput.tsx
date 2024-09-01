@@ -11,6 +11,7 @@ import {
 } from "@/app/components/actions";
 import { TComment } from "@/app/components/types";
 import { getUserID } from "@/app/(auth)/actions";
+import to from "await-to-js";
 
 type props = {
 	listID: number;
@@ -39,13 +40,25 @@ export default function CommentInput({
 		textareaRef.current.disabled = true;
 		let newCommentID: number;
 		if (!commentID) {
-			newCommentID = await insertComment(listID, textareaRef.current.value);
-		} else {
-			newCommentID = await insertCommentReply(
-				listID,
-				commentID,
-				textareaRef.current.value,
+			const [error, data] = await to(
+				insertComment(listID, textareaRef.current.value),
 			);
+			if (error) {
+				toast.error(error.message);
+				setIsLoading(false);
+				return;
+			}
+			newCommentID = data;
+		} else {
+			const [error, data] = await to(
+				insertCommentReply(listID, commentID, textareaRef.current.value),
+			);
+			if (error) {
+				toast.error(error.message);
+				setIsLoading(false);
+				return;
+			}
+			newCommentID = data;
 		}
 
 		const newComment: TComment = {

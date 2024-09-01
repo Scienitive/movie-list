@@ -5,6 +5,8 @@ import clsx from "clsx";
 import { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { deleteLike, insertLike } from "./actions";
+import to from "await-to-js";
+import toast from "react-hot-toast";
 
 type props = {
 	postId: number;
@@ -18,7 +20,11 @@ export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 
 	const handleClick = async () => {
 		const func = userLike ? deleteLike : insertLike;
-		await func(postId);
+		const [error] = await to(func(postId));
+		if (error) {
+			toast.error(error.message, { id: "LikeButtonError" });
+			return;
+		}
 		userLike
 			? setDynamicLikeCount((current) => {
 					return current - 1;
