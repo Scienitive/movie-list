@@ -5,7 +5,7 @@ import CommentLikeButton from "@/app/components/CommentLikeButton";
 import { Button } from "@nextui-org/react";
 import { TComment } from "@/app/components/types";
 import { FaRegCommentAlt } from "react-icons/fa";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getCommentReplies } from "@/app/components/actions";
 import CommentInput from "@/app/components/CommentInput";
 import DeleteCommentButton from "@/app/components/DeleteCommentButton";
@@ -33,6 +33,8 @@ export default function Comment({ userID, listID, commentData }: props) {
 	const [showCommentInput, setShowCommentInput] = useState<boolean>(false);
 	const [deleted, setDeleted] = useState<boolean>(commentData.isDeleted);
 	const [repliesDeleted, setRepliesDeleted] = useState<boolean[]>([]);
+
+	const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
 	const handleClick = async () => {
 		setShowRepliesLoading(true);
@@ -88,8 +90,14 @@ export default function Comment({ userID, listID, commentData }: props) {
 			setLoadMoreRepliesActive(data.next);
 			setShowRepliesLoading(false);
 		}
-
 		setShowCommentInput(true);
+
+		commentInputRef.current?.scrollIntoView({
+			behavior: "smooth",
+			block: "center",
+			inline: "nearest",
+		});
+
 		setReplyButtonLoading(false);
 	};
 
@@ -203,6 +211,7 @@ export default function Comment({ userID, listID, commentData }: props) {
 				<div className="mt-2 flex w-11/12 flex-col items-center gap-2">
 					{showCommentInput && (
 						<CommentInput
+							ref={commentInputRef}
 							listID={listID}
 							commentID={commentData.id}
 							setNewComment={setNewReply}
