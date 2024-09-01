@@ -47,4 +47,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/movie-list
-            echo | ls -la
+            echo | node -v
+            echo | npm -v
