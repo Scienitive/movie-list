@@ -47,7 +47,7 @@ export default function InfiniteScroll({ username, lastListID }: props) {
 			const data = await getListData(
 				sortParam,
 				timeParam,
-				username,
+				username ? username : null,
 				listData.length > 0 ? listData[listData.length - 1].postId : lastListID,
 			);
 			data.forEach((data) => {
