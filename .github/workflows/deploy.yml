@@ -27,6 +27,14 @@ jobs:
       - name: Compress build files
         run: tar -czf build.tar.gz .next public package.json package-lock.json
 
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+
+      - name: Debug Environment Variables
+        run: |
+          echo "SSH_USER: ${{ secrets.SSH_USER }}"
+          echo "SSH_IP: ${{ secrets.SSH_IP }}"
+
       - name: Copy files via SCP
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
