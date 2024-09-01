@@ -47,7 +47,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/movie-list
-            tar -xzf build.tar.gz
-            rm -f build.tar.gz
-            npm install --production
-            pm2 restart movie-list || pm2 start npm --name movie-list -- start
+            echo | ls -la
