@@ -283,7 +283,7 @@ export default function Comment({ userID, listID, commentData }: props) {
 							isLoading={loadMoreLoading}
 							onClick={loadMoreOnClick}
 						>
-							Load More Replies
+							Load More
 						</Button>
 					)}
 				</div>

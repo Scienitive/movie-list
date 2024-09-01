@@ -59,6 +59,12 @@ export default function ListCardInteractive({
 			});
 			setShareButtonLoad(false);
 			return;
+		} else if (movies.length > 15) {
+			toast.error("You can't add more than 15 movies to one list.", {
+				id: "TooMuchMovie",
+			});
+			setShareButtonLoad(false);
+			return;
 		}
 
 		const movieIDs: number[] = movies.map((movie) => movie.id);
@@ -137,32 +143,39 @@ export default function ListCardInteractive({
 								<div className="flex w-full justify-center">
 									<Button
 										isIconOnly
-										className="h-7 w-7 min-w-7 rounded-3xl border-1 border-ml-black bg-ml-white sm:h-11 sm:w-11 sm:min-w-11"
+										className="h-8 w-8 min-w-8 rounded-3xl border-1 border-ml-black bg-ml-white sm:h-10 sm:w-10 sm:min-w-10"
 										onClick={() => {
 											removeMovie(movie.id);
 										}}
 									>
-										<MdClose className="text-ml-red sm:text-3xl" />
+										<MdClose className="text-2xl text-ml-black sm:text-3xl" />
 									</Button>
 								</div>
 							</CardFooter>
 						</Card>
 					))}
-					<Button
-						isIconOnly={true}
-						disableRipple={true}
-						className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-ml-white bg-transparent p-0 sm:h-14 sm:w-14"
-						onPress={onOpen}
-					>
-						<FaPlus className="text-3xl text-ml-white" />
-					</Button>
+					{movies.length < 15 && (
+						<Button
+							isIconOnly={true}
+							disableRipple={true}
+							className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-ml-white bg-transparent p-0 sm:h-14 sm:w-14"
+							onPress={onOpen}
+						>
+							<FaPlus className="text-3xl text-ml-white" />
+						</Button>
+					)}
 				</CardBody>
 				<CardFooter className="flex flex-col px-6 py-2 sm:px-8 sm:py-3">
 					<div className="flex w-full justify-center gap-4">
-						<Button onClick={shareOnClick} isLoading={shareButtonLoad}>
+						<Button
+							onClick={shareOnClick}
+							isLoading={shareButtonLoad}
+							className="bg-ml-red font-semibold"
+						>
 							Share
 						</Button>
 						<Button
+							className="font-semibold"
 							onClick={() => {
 								setCreateList(false);
 							}}

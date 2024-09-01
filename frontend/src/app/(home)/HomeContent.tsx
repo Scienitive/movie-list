@@ -53,7 +53,7 @@ export default async function HomeContent({
 	);
 
 	return (
-		<main className="mt-4 flex grow flex-col items-center gap-4">
+		<main className="mb-10 mt-4 flex grow flex-col items-center gap-4">
 			<div className="flex w-11/12 items-center justify-between md:w-4/5 lg:w-3/5">
 				<MyTabs
 					tabNames={["New", "Most Liked"]}

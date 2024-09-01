@@ -21,6 +21,6 @@ export const movieInfoSchema = z.object({
 	releaseYear: z.string(),
 	posterPath: z.string(),
 	imdbURL: z.string().url(),
-	tmdbURL: z.string().url(),
+	letterboxdURL: z.string().url(),
 });
 export type TMovieInfo = z.infer<typeof movieInfoSchema>;

@@ -4,7 +4,7 @@ import { Tooltip, Card, CardFooter, Button } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
 import { IMDBIcon } from "../ui/icons/imdb";
-import { TMDBIcon } from "../ui/icons/tmdb";
+import { LetterboxdIcon } from "../ui/icons/letterboxd";
 import { TMovieInfo } from "./types";
 import { useState } from "react";
 import clsx from "clsx";
@@ -61,17 +61,17 @@ export default function MovieCard({ key, json }: props) {
 								<IMDBIcon width={100} height={100} />
 							</Button>
 							<Button
-								href={json.tmdbURL}
+								href={json.letterboxdURL}
 								target="_blank"
 								as={Link}
 								isIconOnly
-								aria-label="TMDB"
+								aria-label="Letterboxd"
 								className={clsx(
-									"h-7 w-7 min-w-7 rounded-3xl border-1 border-ml-white bg-[#0d253f] sm:h-8 sm:w-8 sm:min-w-8",
+									"h-7 w-7 min-w-7 rounded-3xl border-1 border-ml-white sm:h-8 sm:w-8 sm:min-w-8",
 									{ "pointer-events-none": !tooltipOpen },
 								)}
 							>
-								<TMDBIcon width={100} height={100} />
+								<LetterboxdIcon width={100} height={100} />
 							</Button>
 						</div>
 					</CardFooter>

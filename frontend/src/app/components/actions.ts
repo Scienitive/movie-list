@@ -39,7 +39,7 @@ export async function getMovieData(movieIds: number[]): Promise<TMovieInfo[]> {
 			releaseYear: jsonData.release_date.split("-")[0],
 			posterPath: jsonData.poster_path,
 			imdbURL: `https://www.imdb.com/title/${jsonData.imdb_id}`,
-			tmdbURL: `https://www.themoviedb.org/movie/${jsonData.id}`,
+			letterboxdURL: `https://letterboxd.com/tmdb/${jsonData.id}`,
 		};
 		const validated = movieInfoSchema.safeParse(trimmedData);
 		if (!validated.success) {
@@ -379,6 +379,10 @@ export async function createList(
 ): Promise<void> {
 	const supabase = createClient();
 
+	if (movieIDs.length > 15) {
+		throw new DatabaseError("You can't add more than 15 movies to a list.");
+	}
+
 	const { error } = await supabase
 		.from("lists")
 		.insert([{ user_id: await getUserID(), title: title, movies: movieIDs }])
@@ -409,7 +413,7 @@ export async function getSearchMovieResults(value: string) {
 }
 
 export async function saveSettings(username: string) {
-	const usernameRegex = /^[A-Za-z0-9_]{3,12}$/;
+	const usernameRegex = /^[A-Za-z0-9_]{3,16}$/;
 
 	if (!username.match(usernameRegex)) {
 		throw new TypeValidationError("This username is not valid.");

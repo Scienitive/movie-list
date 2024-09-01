@@ -42,9 +42,10 @@ export default async function Header() {
 					as={Link}
 					href={`/p/${username}`}
 					variant="bordered"
-					className="h-9 min-h-9 border-ml-white text-ml-white sm:h-10 sm:min-h-10"
+					className="h-9 min-h-9 w-9 min-w-9 border-ml-white text-lg font-bold text-ml-white sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-max sm:text-sm sm:font-normal"
 				>
-					{`@${username}`}
+					<span className="hidden sm:block">{`@${username}`}</span>
+					<span className="mb-1 block sm:hidden">{"@"}</span>
 				</Button>
 			</NavbarItem>
 			<NavbarItem>

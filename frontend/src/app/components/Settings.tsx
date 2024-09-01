@@ -31,7 +31,7 @@ export default function Settings({ currentUsername }: props) {
 			data.username = currentUsername;
 		} else if (
 			(data.username?.toString().length ?? 0) < 3 ||
-			(data.username?.toString().length ?? 0) > 12
+			(data.username?.toString().length ?? 0) > 16
 		) {
 			setUsernameInvalid(true);
 			setUsernameErrorMessage("Username must be between 3 and 12 characters.");
@@ -69,7 +69,10 @@ export default function Settings({ currentUsername }: props) {
 
 	return (
 		<div className="flex flex-row justify-center">
-			<form action={formAction} className="flex w-[400px] flex-col gap-4">
+			<form
+				action={formAction}
+				className="flex w-7/12 flex-col gap-4 sm:w-[400px]"
+			>
 				<Input
 					type="text"
 					name="username"
