@@ -343,7 +343,6 @@ export async function getUsername(): Promise<string> {
 	} = await supabase.auth.getUser();
 
 	if (error) {
-		console.error(error);
 		throw new DatabaseError("Error while reaching database.");
 	} else if (!user) {
 		throw new NotAuthenticatedError("User is not authenticated.");
