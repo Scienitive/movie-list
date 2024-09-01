@@ -11,6 +11,9 @@ export async function OAuthLogin(
 	const supabase = createClient();
 	const origin = headers().get("origin");
 
+	console.log("%%%%%");
+	console.log(origin);
+
 	const { data, error } = await supabase.auth.signInWithOAuth({
 		provider: provider,
 		options: {
