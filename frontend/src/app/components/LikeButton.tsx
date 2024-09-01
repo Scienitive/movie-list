@@ -17,12 +17,15 @@ type props = {
 export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 	const [userLike, setUserLike] = useState<boolean>(didUserLike);
 	const [dynamicLikeCount, setDynamicLikeCount] = useState<number>(likeCount);
+	const [disabled, setDisabled] = useState<boolean>(false);
 
 	const handleClick = async () => {
+		setDisabled(true);
 		const func = userLike ? deleteLike : insertLike;
 		const [error] = await to(func(postId));
 		if (error) {
 			toast.error(error.message, { id: "LikeButtonError" });
+			setDisabled(false);
 			return;
 		}
 		userLike
@@ -33,6 +36,7 @@ export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 					return current + 1;
 				});
 		setUserLike(!userLike);
+		setDisabled(false);
 	};
 
 	return (
@@ -45,6 +49,7 @@ export default function LikeButton({ postId, likeCount, didUserLike }: props) {
 					"text-ml-white": !userLike,
 				})}
 				onClick={handleClick}
+				disabled={disabled}
 			>
 				{userLike ? (
 					<FaHeart className="text-3xl sm:text-8xl" />

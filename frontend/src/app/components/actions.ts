@@ -126,6 +126,7 @@ export async function getCommentReplies(
 		arg_last_comment_id: lastReplyID,
 	});
 	if (error) {
+		console.error(error);
 		throw new DatabaseError("Error while retrieving comments.");
 	}
 

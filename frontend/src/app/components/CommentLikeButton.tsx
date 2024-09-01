@@ -23,18 +23,22 @@ export default function CommentLikeButton({
 }: props) {
 	const [userLike, setUserLike] = useState<boolean>(didUserLike);
 	const [dynamicLikeCount, setDynamicLikeCount] = useState<number>(likeCount);
+	const [disabled, setDisabled] = useState<boolean>(false);
 
 	const handleClick = async () => {
+		setDisabled(true);
 		if (!userID) {
 			toast.error("You need to login to like a comment.", {
 				id: "NoLoginCommentLikeError",
 			});
+			setDisabled(false);
 			return;
 		}
 		const func = userLike ? deleteCommentLike : insertCommentLike;
 		const [error] = await to(func(commentID));
 		if (error) {
 			toast.error(error.message, { id: "CommentLikeButtonError" });
+			setDisabled(false);
 			return;
 		}
 		userLike
@@ -45,6 +49,7 @@ export default function CommentLikeButton({
 					return current + 1;
 				});
 		setUserLike(!userLike);
+		setDisabled(false);
 	};
 
 	return (
@@ -57,6 +62,7 @@ export default function CommentLikeButton({
 					"text-ml-white": !userLike,
 				})}
 				onClick={handleClick}
+				disabled={disabled}
 			>
 				{userLike ? (
 					<FaHeart className="text-sm sm:text-base" />
