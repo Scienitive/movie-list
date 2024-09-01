@@ -1,0 +1,49 @@
+name: Deploy Next.js to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Compress build files
+        run: tar -czf build.tar.gz .next public package.json package-lock.json
+
+      - name: Copy files via SCP
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ssh_private_key }} # Add your SSH private key in GitHub Secrets
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          scp -P 22 -o StrictHostKeyChecking=no build.tar.gz root@alyasar.dev:/home/movie-list
+
+      - name: Deploy to VPS
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ssh_private_key }}
+        run: |
+          ssh -p 22 -o StrictHostKeyChecking=no root@alyasar.dev << 'EOF'
+            cd /home/movie-list
+            tar -xzf build.tar.gz
+            rm -f build.tar.gz
+            npm install --production
+            pm2 restart movie-list || pm2 start npm --name movie-list -- start
+          EOF
