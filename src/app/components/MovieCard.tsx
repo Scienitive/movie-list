@@ -39,6 +39,7 @@ export default function MovieCard({ key, json }: props) {
 					className="group/footer h-auto min-w-[92px] max-w-[92px] rounded-3xl p-0 hover:scale-105 sm:min-w-[112px] sm:max-w-[112px]"
 				>
 					<Image
+						unoptimized
 						className="rounded-3xl border-2 border-ml-white"
 						src={`${imageURL}${json.posterPath}`}
 						alt={`${json.title} (${json.releaseYear})`}
