@@ -95,6 +95,7 @@ export default function MyAutocomplete({
 	return (
 		<div className="flex w-full flex-row justify-center bg-transparent">
 			<Autocomplete
+				autoFocus
 				aria-label="Movie Name"
 				placeholder="Search a movie"
 				size="lg"
