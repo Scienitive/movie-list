@@ -163,6 +163,12 @@ export async function insertComment(
 ): Promise<number> {
 	const supabase = createClient();
 
+	if (text.length > 600) {
+		throw new DatabaseError(
+			"You can't insert a comment with more than 600 characters.",
+		);
+	}
+
 	const userID = await getUserID();
 
 	const { data, error } = await supabase
@@ -183,6 +189,12 @@ export async function insertCommentReply(
 	text: string,
 ): Promise<number> {
 	const supabase = createClient();
+
+	if (text.length > 600) {
+		throw new DatabaseError(
+			"You can't insert a comment with more than 600 characters.",
+		);
+	}
 
 	const userID = await getUserID();
 

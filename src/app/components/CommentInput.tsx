@@ -44,6 +44,7 @@ const CommentInput = forwardRef<HTMLTextAreaElement, props>(
 				);
 				if (error) {
 					toast.error(error.message);
+					textareaRef.current.disabled = false;
 					setIsLoading(false);
 					return;
 				}
@@ -54,6 +55,7 @@ const CommentInput = forwardRef<HTMLTextAreaElement, props>(
 				);
 				if (error) {
 					toast.error(error.message);
+					textareaRef.current.disabled = false;
 					setIsLoading(false);
 					return;
 				}
