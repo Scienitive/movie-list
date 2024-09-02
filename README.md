@@ -5,6 +5,11 @@
 A web app for creating and sharing movie lists.
 
 ## Images & Gifs
+![Visual](./assets/img1.png)
+![Visual](./assets/gif1.gif)
+![Visual](./assets/gif2.gif)
+![Visual](./assets/img2.png)
+![Visual](./assets/img3.png)
 
 ## Technologies
 
