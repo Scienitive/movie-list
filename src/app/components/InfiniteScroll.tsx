@@ -42,10 +42,7 @@ export default function InfiniteScroll({
 
 	useEffect(() => {
 		const handleScroll = () => {
-			if (
-				window.innerHeight + window.scrollY >=
-				document.body.offsetHeight - 300
-			) {
+			if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
 				setIsBottom(true);
 			} else {
 				setIsBottom(false);
@@ -59,6 +56,10 @@ export default function InfiniteScroll({
 
 	useEffect(() => {
 		const action = async () => {
+			if (loading) {
+				return;
+			}
+
 			setLoading(true);
 			const data = await getListData(
 				userID ? userID : null,
@@ -97,15 +98,6 @@ export default function InfiniteScroll({
 
 	return (
 		<>
-			{loading && (
-				<Spinner
-					size="lg"
-					classNames={{
-						circle1: "border-b-ml-red",
-						circle2: "border-b-ml-red",
-					}}
-				/>
-			)}
 			{listData.map((data: ListData) => (
 				<ListCardClient
 					key={data.postId}
@@ -120,6 +112,15 @@ export default function InfiniteScroll({
 					initialCommentData={data.initialCommentData}
 				/>
 			))}
+			{loading && (
+				<Spinner
+					size="lg"
+					classNames={{
+						circle1: "border-b-ml-red",
+						circle2: "border-b-ml-red",
+					}}
+				/>
+			)}
 		</>
 	);
 }
