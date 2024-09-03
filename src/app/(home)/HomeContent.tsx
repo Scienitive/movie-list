@@ -4,10 +4,11 @@ import { Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
 import AddListWrapper from "@/app/components/AddListWrapper";
 import ListCard from "@/app/components/ListCard";
-import { getComments, getUsername } from "@/app/components/actions";
+import { getUsername } from "@/app/components/actions";
 import to from "await-to-js";
 import InfiniteScroll from "@/app/components/InfiniteScroll";
 import { getListData } from "@/app/(home)/actions";
+import { getUserID } from "@/app/(auth)/actions";
 
 type props = {
 	sortParam: string;
@@ -27,9 +28,17 @@ export default async function HomeContent({
 	addList,
 	profileData,
 }: props) {
-	const data = await getListData(sortParam, timeParam, slug, undefined);
+	const [err, userID] = await to(getUserID());
+	const [err2, username] = await to(getUsername());
 
-	const [err, username] = await to(getUsername());
+	const data = await getListData(
+		userID ? userID : null,
+		sortParam,
+		timeParam,
+		slug,
+		undefined,
+		undefined,
+	);
 
 	const profileDataComponent = (
 		<div className="mb-1 flex flex-row justify-center gap-24">
@@ -91,8 +100,12 @@ export default async function HomeContent({
 						/>
 					))}
 					<InfiniteScroll
+						userID={userID}
 						username={slug}
 						lastListID={data.length > 0 ? data[data.length - 1].id : undefined}
+						lastListLikeCount={
+							data.length > 0 ? data[data.length - 1].like_count : undefined
+						}
 					/>
 				</div>
 			</Suspense>

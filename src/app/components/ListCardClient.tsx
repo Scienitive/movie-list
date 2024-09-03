@@ -11,7 +11,6 @@ import { getMovieData, isUserLikedPost } from "./actions";
 import { TMovieInfo } from "./types";
 import MovieCard from "./MovieCard";
 import { getUserID } from "../(auth)/actions";
-import { to } from "await-to-js";
 import { useEffect, useState } from "react";
 import ListCardFooterContent from "@/app/components/ListCardFooterContent";
 
@@ -22,6 +21,8 @@ type props = {
 	title: string;
 	movies: number[];
 	likeCount: number;
+	userLike: boolean;
+	userID: string | undefined;
 	className?: string;
 };
 
@@ -32,17 +33,15 @@ export default function ListCardClient({
 	title,
 	movies,
 	likeCount,
+	userLike,
+	userID,
 	className,
 }: props) {
 	const [data, setData] = useState<TMovieInfo[]>([]);
-	const [userID, setUserID] = useState<string | undefined>(undefined);
-	const [userLike, setUserLike] = useState<boolean>(false);
+	// const [userID, setUserID] = useState<string | undefined>(undefined);
 
 	const initialFunction = async () => {
-		const [movieDataResult, userIDResult] = await Promise.allSettled([
-			getMovieData(movies),
-			getUserID(),
-		]);
+		const [movieDataResult] = await Promise.allSettled([getMovieData(movies)]);
 
 		// If somehow I don't get the movie data I just don't return that movie list
 		if (movieDataResult.status === "rejected") {
@@ -50,20 +49,6 @@ export default function ListCardClient({
 			return;
 		}
 		setData(movieDataResult.value);
-
-		if (userIDResult.status !== "rejected") {
-			setUserID(userIDResult.value);
-		}
-
-		if (userID) {
-			const [error, data] = await to(isUserLikedPost(postId));
-			if (error) {
-				console.error(error);
-				return;
-			} else {
-				setUserLike(data);
-			}
-		}
 	};
 
 	useEffect(() => {

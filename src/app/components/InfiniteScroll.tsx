@@ -12,14 +12,22 @@ type ListData = {
 	title: string;
 	movies: number[];
 	likeCount: number;
+	userLike: boolean;
 };
 
 type props = {
+	userID: string | undefined;
 	username: string | undefined;
 	lastListID: number | undefined;
+	lastListLikeCount: number | undefined;
 };
 
-export default function InfiniteScroll({ username, lastListID }: props) {
+export default function InfiniteScroll({
+	userID,
+	username,
+	lastListID,
+	lastListLikeCount,
+}: props) {
 	const searchParams = useSearchParams();
 	const [listData, setListData] = useState<ListData[]>([]);
 	const [isBottom, setIsBottom] = useState(false);
@@ -45,10 +53,14 @@ export default function InfiniteScroll({ username, lastListID }: props) {
 		const action = async () => {
 			const newData: ListData[] = [];
 			const data = await getListData(
+				userID ? userID : null,
 				sortParam,
 				timeParam,
 				username ? username : null,
 				listData.length > 0 ? listData[listData.length - 1].postId : lastListID,
+				listData.length > 0
+					? listData[listData.length - 1].likeCount
+					: lastListLikeCount,
 			);
 			data.forEach((data) => {
 				newData.push({
@@ -58,6 +70,7 @@ export default function InfiniteScroll({ username, lastListID }: props) {
 					title: data.title,
 					movies: data.movies,
 					likeCount: data.like_count,
+					userLike: data.user_like,
 				});
 			});
 			setListData((prev) => [...prev, ...newData]);
@@ -79,6 +92,8 @@ export default function InfiniteScroll({ username, lastListID }: props) {
 					title={data.title}
 					movies={data.movies}
 					likeCount={data.likeCount}
+					userLike={data.userLike}
+					userID={userID}
 				/>
 			))}
 		</>

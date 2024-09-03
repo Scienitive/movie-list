@@ -212,7 +212,7 @@ export async function insertCommentReply(
 		.select()
 		.single();
 	if (error) {
-		console.log(error);
+		console.error(error);
 		if (error.code === "23503") {
 			throw new DatabaseError(
 				"The comment that you're replying to doesn't exist.",
@@ -263,7 +263,7 @@ export async function insertCommentLike(commentID: number): Promise<void> {
 		.select();
 
 	if (error) {
-		console.log(error);
+		console.error(error);
 		if (error.code === "23503") {
 			throw new DatabaseError("The comment that you like doesn't exist.");
 		} else {
@@ -282,7 +282,7 @@ export async function deleteCommentLike(commentID: number): Promise<void> {
 		.eq("comment_id", commentID);
 
 	if (error) {
-		console.log(error);
+		console.error(error);
 		if (error.code === "23503") {
 			throw new DatabaseError("Error while deleting a like.");
 		} else {
