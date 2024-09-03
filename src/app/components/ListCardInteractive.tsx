@@ -65,6 +65,12 @@ export default function ListCardInteractive({
 			});
 			setShareButtonLoad(false);
 			return;
+		} else if (textareaRef.current.value.length > 120) {
+			toast.error("List title can't have more than 120 characters.", {
+				id: "TitleTooLong",
+			});
+			setShareButtonLoad(false);
+			return;
 		}
 
 		const movieIDs: number[] = movies.map((movie) => movie.id);
