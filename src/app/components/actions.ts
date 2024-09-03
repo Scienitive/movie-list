@@ -392,6 +392,8 @@ export async function createList(
 
 	if (movieIDs.length > 15) {
 		throw new DatabaseError("You can't add more than 15 movies to a list.");
+	} else if (title.length > 120) {
+		throw new DatabaseError("List title can't have more than 120 characters.");
 	}
 
 	const { error } = await supabase
