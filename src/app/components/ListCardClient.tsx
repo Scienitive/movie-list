@@ -7,12 +7,12 @@ import {
 	CardFooter,
 	Link,
 } from "@nextui-org/react";
-import { getMovieData, isUserLikedPost } from "./actions";
+import { getMovieData } from "./actions";
 import { TMovieInfo } from "./types";
 import MovieCard from "./MovieCard";
-import { getUserID } from "../(auth)/actions";
 import { useEffect, useState } from "react";
 import ListCardFooterContent from "@/app/components/ListCardFooterContent";
+import { TComment } from "./types";
 
 type props = {
 	postId: number;
@@ -23,6 +23,7 @@ type props = {
 	likeCount: number;
 	userLike: boolean;
 	userID: string | undefined;
+	initialCommentData: { commentData: TComment[]; next: boolean };
 	className?: string;
 };
 
@@ -35,10 +36,10 @@ export default function ListCardClient({
 	likeCount,
 	userLike,
 	userID,
+	initialCommentData,
 	className,
 }: props) {
 	const [data, setData] = useState<TMovieInfo[]>([]);
-	// const [userID, setUserID] = useState<string | undefined>(undefined);
 
 	const initialFunction = async () => {
 		const [movieDataResult] = await Promise.allSettled([getMovieData(movies)]);
@@ -83,7 +84,7 @@ export default function ListCardClient({
 					postId={postId}
 					likeCount={likeCount}
 					userLike={userLike}
-					initialCommentData={{ commentData: [], next: false }}
+					initialCommentData={initialCommentData}
 				/>
 			</CardFooter>
 		</Card>
