@@ -36,6 +36,7 @@ export default function InfiniteScroll({
 	const [listData, setListData] = useState<ListData[]>([]);
 	const [isBottom, setIsBottom] = useState(false);
 	const [loading, setLoading] = useState<boolean>(false);
+	const [disableScroll, setDisableScroll] = useState<boolean>(false);
 
 	const sortParam: string = (searchParams.get("sort") as string) || "new";
 	const timeParam: string = (searchParams.get("time") as string) || "all";
@@ -56,7 +57,7 @@ export default function InfiniteScroll({
 
 	useEffect(() => {
 		const action = async () => {
-			if (loading) {
+			if (disableScroll || loading) {
 				return;
 			}
 
@@ -87,6 +88,9 @@ export default function InfiniteScroll({
 					};
 				}),
 			);
+			if (newData.length === 0) {
+				setDisableScroll(true);
+			}
 			setListData((prev) => [...prev, ...newData]);
 			setLoading(false);
 		};
