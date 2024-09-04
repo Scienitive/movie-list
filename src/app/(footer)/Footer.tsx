@@ -1,3 +1,4 @@
+import PrivacyPolicy from "@/app/(footer)/PrivacyPolicy";
 import { TMDBIcon } from "@/app/ui/icons/tmdb";
 import Link from "next/link";
 import { FaLinkedin, FaGithub, FaItchIo, FaGlobe } from "react-icons/fa";
@@ -19,6 +20,7 @@ export default async function Feader() {
 				</p>
 			</div>
 			<div className="flex flex-col-reverse items-center gap-1">
+				<PrivacyPolicy />
 				<p className="text-[9px] text-ml-white/50 sm:text-sm">
 					Made by Altuğ Alpcan Yaşar:
 					<Link href={"https://alyasar.dev"} className="ml-[6px] text-ml-red">
