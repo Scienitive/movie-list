@@ -27,27 +27,28 @@ jobs:
       - name: Compress build files
         run: tar -czf build.tar.gz .next package.json package-lock.json
 
-      - name: Install sshpass
-        run: sudo apt-get install sshpass
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Copy files via SCP
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_IP: ${{ secrets.SSH_IP }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          sshpass -p "$SSH_PASSWORD" scp -P 22 -o StrictHostKeyChecking=no build.tar.gz $SSH_USER@$SSH_IP:/home/movie-list
+          scp -P 22 -o StrictHostKeyChecking=no build.tar.gz $SSH_USER@$SSH_IP:/home/alyasar/movie-list
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_IP }}
           username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            source /root/.nvm/nvm.sh
-            cd /home/movie-list
+            cd /home/alyasar/movie-list
             tar -xzf build.tar.gz
             rm -f build.tar.gz
             npm install --production
