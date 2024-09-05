@@ -38,7 +38,7 @@ jobs:
           SSH_IP: ${{ secrets.SSH_IP }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          scp -P 22 -o StrictHostKeyChecking=no build.tar.gz $SSH_USER@$SSH_IP:/home/alyasar/movie-list
+          scp -P 22 -o StrictHostKeyChecking=no build.tar.gz $SSH_USER@$SSH_IP:/home/alyasar/movie-list/
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
