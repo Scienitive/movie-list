@@ -1,6 +1,6 @@
 # movie-list
 
-## <a href="https://movielist.alyasar.dev">Live Site</a>
+## <a href="https://movielist.alyasar.dev">Live Site</a> (Currently down because of security reasons)
 
 A web app for creating and sharing movie lists.
 
